@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Plantão Psicológico</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f5f7f6; color: #2c3e35; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    header .logo { font-size: 20px; font-weight: bold; }
+    header nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #2c3e35;
+      font-weight: 500;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .hero h1 { font-size: 32px; margin-bottom: 10px; }
+    .hero p { font-size: 18px; margin-bottom: 25px; color: #4a5c52; }
+
+    .btn {
+      background: #3f7f5f;
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn:hover { background: #345f47; }
+
+    section { padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+    section h2 { margin-bottom: 15px; }
+
+    .etapas {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .etapa {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 180px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #7a8a80;
+      font-size: 14px;
+    }
+
+    /* TELA DE LOGIN */
+    #login {
+      display: none;
+      min-height: 90vh;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .login-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 360px;
+    }
+    .login-box h2 { text-align: center; margin-bottom: 20px; }
+    .login-box label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .login-box .btn { width: 100%; }
+    .voltar {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #3f7f5f;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #mensagemLogin {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 12px;
+      min-height: 18px;
+    }
+    #mensagemLogin.erro, #mensagemPainel.erro, #mensagemMeusPlantoes.erro { color: #c0392b; }
+    #mensagemLogin.sucesso, #mensagemPainel.sucesso, #mensagemMeusPlantoes.sucesso { color: #2e7d4f; }
+
+    #mensagemMeusPlantoes {
+      font-size: 14px;
+      margin-bottom: 16px;
+      min-height: 18px;
+    }
+
+    /* TELA MEUS PLANTÕES */
+    #meusPlantoes {
+      display: none;
+      min-height: 90vh;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    #meusPlantoes .login-box { max-width: 420px; }
+
+    .resumo-plantao {
+      margin-top: 24px;
+      background: #f5f7f6;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: left;
+    }
+    .resumo-plantao h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .resumo-plantao p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #2c3e35;
+    }
+
+    #painel {
+      display: none;
+      padding: 50px 20px;
+      text-align: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    #painel h1 { font-size: 26px; margin-bottom: 4px; }
+    #painel .perfil { color: #4a5c52; margin-bottom: 30px; }
+
+    .menu-painel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .menu-painel button {
+      background: #fff;
+      border: 1px solid #d7ded9;
+      color: #2c3e35;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .menu-painel button:hover {
+      background: #eef5f0;
+      border-color: #3f7f5f;
+    }
+    .btn-sair {
+      margin-top: 24px;
+      background: transparent;
+      border: none;
+      color: #c0392b;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PÁGINA INICIAL -->
+  <div id="inicio">
+    <header>
+      <div class="logo">🌿 Plantão Psicológico</div>
+      <nav>
+        <a href="#inicio">Início</a>
+        <a href="#sobre">Sobre</a>
+        <a href="#comofunciona">Como funciona</a>
+        <a href="#projeto">Projeto</a>
+        <a href="#" onclick="mostrarLogin(); return false;">Área do Plantonista</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <h1>Plantão Psicológico</h1>
+      <p>Um espaço de escuta e acolhimento</p>
+      <p>Atendimento psicológico gratuito, oferecido por estudantes em formação, com supervisão qualificada.</p>
+      <button class="btn" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfPzBO8NqsjTlClXcIL7-JrhIsFgM5Z46Y0BhjjQ8bVDEXjdA/viewform?usp=dialog', '_blank')">
+        Solicitar atendimento
+      </button>
+    </div>
+
+    <section id="sobre">
+      <h2>O que é o Plantão Psicológico?</h2>
+      <p>O Plantão Psicológico é um serviço de acolhimento breve, voltado a pessoas que buscam um espaço de escuta em momentos de dificuldade emocional.</p>
+    </section>
+
+    <section id="comofunciona">
+      <h2>Como funciona?</h2>
+      <div class="etapas">
+        <div class="etapa"><strong>1. Solicite</strong><p>Preencha o formulário de solicitação.</p></div>
+        <div class="etapa"><strong>2. Aguarde</strong><p>Sua solicitação será analisada pela equipe.</p></div>
+        <div class="etapa"><strong>3. Atendimento</strong><p>Você será chamado(a) para o atendimento.</p></div>
+      </div>
+    </section>
+
+    <section id="projeto">
+      <h2>Sobre o projeto</h2>
+      <p>Este projeto faz parte de um Trabalho de Conclusão de Curso da UFRRJ.</p>
+    </section>
+
+    <footer>Plantão Psicológico • UFRRJ</footer>
+  </div>
+
+  <!-- TELA DE LOGIN -->
+  <div id="login">
+    <div class="login-box">
+      <h2>Área do Plantonista</h2>
+
+      <div id="mensagemLogin"></div>
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="seuemail@exemplo.com">
+
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="Digite sua senha">
+
+      <button class="btn" id="btnEntrar" onclick="fazerLogin()">Entrar</button>
+
+      <span class="voltar" onclick="mostrarInicio()">← Voltar para o início</span>
+    </div>
+  </div>
+
+  <!-- PAINEL DO PLANTONISTA -->
+  <div id="painel">
+    <h1 id="painelSaudacao"></h1>
+    <p class="perfil" id="painelPerfil"></p>
+
+    <div id="mensagemPainel"></div>
+
+    <div class="menu-painel">
+      <button id="btnSolicitarCliente" onclick="solicitarCliente()">📋 Solicitar Cliente</button>
+      <button onclick="acaoPainel('retornarCliente')">🔄 Retornar Cliente</button>
+      <button onclick="acaoPainel('registrarFrequencia')">🗓️ Registrar Frequência</button>
+      <button onclick="mostrarMeusPlantoes()">📁 Meus Plantões</button>
+    </div>
+
+    <button class="btn-sair" onclick="sair()">Sair</button>
+  </div>
+
+  <!-- TELA MEUS PLANTÕES -->
+  <div id="meusPlantoes">
+    <div class="login-box">
+      <h2>Meus Plantões</h2>
+
+      <div id="mensagemMeusPlantoes"></div>
+
+      <button class="btn" id="btnSolicitarDados" onclick="solicitarDadosClientes()">Solicitar Dados dos Meus Clientes</button>
+
+      <div class="resumo-plantao">
+        <h3>Meu resumo do plantão:</h3>
+        <p id="resumoTexto">Carregando...</p>
+      </div>
+
+      <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
+    </div>
+  </div>
+
+  <script>
+    // ----------------------------------------
+    // USUÁRIO LOGADO (guardado em memória)
+    // ----------------------------------------
+    let usuarioAtual = null;
+
+    // ----------------------------------------
+    // NAVEGAÇÃO ENTRE TELAS
+    // ----------------------------------------
+
+    function mostrarLogin() {
+      document.getElementById('inicio').style.display = 'none';
+      document.getElementById('login').style.display = 'flex';
+      document.getElementById('mensagemLogin').textContent = '';
+      document.getElementById('mensagemLogin').className = '';
+      window.scrollTo(0, 0);
+    }
+
+    function mostrarInicio() {
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('inicio').style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    function mostrarPainel(nome, email, perfil) {
+      usuarioAtual = { nome: nome, email: email, perfil: perfil };
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('painel').style.display = 'block';
+      document.getElementById('painelSaudacao').textContent = 'Olá, ' + nome;
+      document.getElementById('painelPerfil').textContent = 'Perfil: ' + perfil;
+      document.getElementById('mensagemPainel').textContent = '';
+      document.getElementById('mensagemPainel').className = '';
+    }
+
+    // ----------------------------------------
+    // BOTÕES DO PAINEL (ainda placeholders, exceto Solicitar Cliente)
+    // ----------------------------------------
+
+    function acaoPainel(nomeAcao) {
+      const mensagens = {
+        retornarCliente: 'Retornar Cliente: em construção.',
+        registrarFrequencia: 'Registrar Frequência: em construção.'
+      };
+
+      alert(mensagens[nomeAcao] || 'Função em construção.');
+    }
+
+    function solicitarCliente() {
+      if (!usuarioAtual) return;
+
+      const mensagem = document.getElementById('mensagemPainel');
+      const botao = document.getElementById('btnSolicitarCliente');
+
+      mensagem.textContent = '';
+      mensagem.className = '';
+      botao.disabled = true;
+      botao.textContent = 'Solicitando...';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          botao.disabled = false;
+          botao.textContent = '📋 Solicitar Cliente';
+          mensagem.textContent = resposta.mensagem;
+          mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
+        })
+        .withFailureHandler(function(erro) {
+          botao.disabled = false;
+          botao.textContent = '📋 Solicitar Cliente';
+          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
+          mensagem.className = 'erro';
+          console.error(erro);
+        })
+        .solicitarCliente(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil);
+    }
+
+    function sair() {
+      usuarioAtual = null;
+      document.getElementById('painel').style.display = 'none';
+      document.getElementById('inicio').style.display = 'block';
+      document.getElementById('email').value = '';
+      document.getElementById('senha').value = '';
+      window.scrollTo(0, 0);
+    }
+
+    // ----------------------------------------
+    // MEUS PLANTÕES
+    // ----------------------------------------
+
+    function mostrarMeusPlantoes() {
+      document.getElementById('painel').style.display = 'none';
+      document.getElementById('meusPlantoes').style.display = 'flex';
+      document.getElementById('mensagemMeusPlantoes').textContent = '';
+      document.getElementById('mensagemMeusPlantoes').className = '';
+      carregarResumoPlantao();
+      window.scrollTo(0, 0);
+    }
+
+    function voltarAoPainel() {
+      document.getElementById('meusPlantoes').style.display = 'none';
+      document.getElementById('painel').style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    function carregarResumoPlantao() {
+      const resumoTexto = document.getElementById('resumoTexto');
+      resumoTexto.textContent = 'Carregando...';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          if (resposta.sucesso) {
+            resumoTexto.innerHTML =
+              resposta.pendentes + ' pendente(s)<br>' +
+              resposta.atendidos + ' atendido(s)<br>' +
+              resposta.desistentes + ' desistente(s)<br>' +
+              resposta.transferidos + ' transferido(s)';
+          } else {
+            resumoTexto.textContent = resposta.mensagem;
+          }
+        })
+        .withFailureHandler(function(erro) {
+          resumoTexto.textContent = 'Erro ao carregar o resumo.';
+          console.error(erro);
+        })
+        .obterResumoPlantao(usuarioAtual.nome, usuarioAtual.perfil);
+    }
+
+    function solicitarDadosClientes() {
+      if (!usuarioAtual) return;
+
+      const mensagem = document.getElementById('mensagemMeusPlantoes');
+      const botao = document.getElementById('btnSolicitarDados');
+
+      mensagem.textContent = '';
+      mensagem.className = '';
+      botao.disabled = true;
+      botao.textContent = 'Solicitando...';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          botao.disabled = false;
+          botao.textContent = 'Solicitar Dados dos Meus Clientes';
+          mensagem.textContent = resposta.mensagem;
+          mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
+        })
+        .withFailureHandler(function(erro) {
+          botao.disabled = false;
+          botao.textContent = 'Solicitar Dados dos Meus Clientes';
+          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
+          mensagem.className = 'erro';
+          console.error(erro);
+        })
+        .solicitarDadosClientes(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil);
+    }
+
+    // ----------------------------------------
+    // LOGIN
+    // ----------------------------------------
+
+    function fazerLogin() {
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value.trim();
+      const mensagem = document.getElementById('mensagemLogin');
+      const botao = document.getElementById('btnEntrar');
+
+      mensagem.textContent = '';
+      mensagem.className = '';
+
+      if (!email || !senha) {
+        mensagem.textContent = 'Preencha e-mail e senha.';
+        mensagem.className = 'erro';
+        return;
+      }
+
+      botao.disabled = true;
+      botao.textContent = 'Entrando...';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          botao.disabled = false;
+          botao.textContent = 'Entrar';
+
+          if (resposta.sucesso) {
+            mensagem.textContent = '';
+            mostrarPainel(resposta.nome, resposta.email, resposta.perfil);
+          } else {
+            mensagem.textContent = resposta.mensagem;
+            mensagem.className = 'erro';
+          }
+        })
+        .withFailureHandler(function(erro) {
+          botao.disabled = false;
+          botao.textContent = 'Entrar';
+          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
+          mensagem.className = 'erro';
+          console.error(erro);
+        })
+        .verificarLogin(email, senha);
+    }
+  </script>
+
+</body>
+</html>
