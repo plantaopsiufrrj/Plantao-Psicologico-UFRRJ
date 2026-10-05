@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="plantao-build" content="2026-10-05-fix-nav-2">
   <title>Plantão Psicológico</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -701,8 +702,8 @@
 
     function mostrarPainel(nome, email, perfil, habilitado = true, ativo = true) {
       usuarioAtual = { nome: nome, email: email, perfil: perfil, habilitado: habilitado !== false, ativo: ativo !== false };
-      document.getElementById('login').style.display = 'none';
-      document.getElementById('painel').style.display = 'block';
+      esconderTelasExtras();
+      document.getElementById('painel').style.setProperty('display', 'block', 'important');
       document.getElementById('painelSaudacao').textContent = 'Olá, ' + nome;
       document.getElementById('painelPerfil').textContent = 'Perfil: ' + perfil;
       document.getElementById('mensagemPainel').textContent = '';
@@ -780,6 +781,173 @@
         const el = document.getElementById(id);
         if (el) el.style.setProperty('display', 'none', 'important');
       });
+    }
+
+
+    function selecionarCliente(cliente) {
+      clienteSelecionado = cliente;
+      const escolhido = document.getElementById('clienteEscolhido');
+      const form = document.getElementById('formRetorno');
+      if (escolhido) escolhido.textContent = (cliente.codigo || '') + ' — ' + (cliente.nome || '');
+      if (form) form.style.setProperty('display', 'block', 'important');
+      document.getElementById('situacaoCliente').value = '';
+      document.getElementById('detalheRetorno').value = '';
+      document.getElementById('arquivoRelatorio').value = '';
+      alterarCamposRetorno();
+    }
+
+    function alterarCamposRetorno() {
+      const situacao = document.getElementById('situacaoCliente').value;
+      document.getElementById('campoRelatorio').style.display = situacao === 'Atendido' ? 'block' : 'none';
+      document.getElementById('campoDetalhe').style.display = ['Desistente', 'Transferido'].includes(situacao) ? 'block' : 'none';
+      document.getElementById('labelDetalhe').textContent = situacao === 'Desistente'
+        ? 'Motivo da desistência'
+        : 'Nome do plantonista que receberá o cliente';
+    }
+
+    function cancelarRetorno() {
+      const form = document.getElementById('formRetorno');
+      if (form) form.style.setProperty('display', 'none', 'important');
+      clienteSelecionado = null;
+      mostrarRetornarCliente();
+    }
+
+    function salvarRetornoCliente() {
+      if (!usuarioAtual || !clienteSelecionado) return;
+
+      const situacao = document.getElementById('situacaoCliente').value;
+      if (!situacao) {
+        alert('Selecione a situação.');
+        return;
+      }
+
+      const detalhe = document.getElementById('detalheRetorno').value.trim();
+      if (situacao !== 'Atendido' && !detalhe) {
+        alert('Preencha o campo solicitado.');
+        return;
+      }
+
+      const enviar = function(arquivo) {
+        const botao = document.getElementById('btnSalvarRetorno');
+        botao.disabled = true;
+        botao.textContent = 'Salvando...';
+
+        google.script.run
+          .withSuccessHandler(function(resposta) {
+            botao.disabled = false;
+            botao.textContent = 'Confirmar';
+            alert(resposta.mensagem);
+            if (resposta.sucesso) mostrarRetornarCliente();
+          })
+          .withFailureHandler(function(erro) {
+            botao.disabled = false;
+            botao.textContent = 'Confirmar';
+            alert('Erro ao salvar. Tente novamente.');
+            console.error(erro);
+          })
+          .atualizarSituacaoCliente(
+            usuarioAtual.email,
+            usuarioAtual.nome,
+            usuarioAtual.perfil,
+            clienteSelecionado.codigo,
+            situacao,
+            detalhe,
+            arquivo
+          );
+      };
+
+      if (situacao === 'Atendido') {
+        const arquivo = document.getElementById('arquivoRelatorio').files[0];
+        if (!arquivo) {
+          alert('Anexe o relatório.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          enviar({ nome: arquivo.name, mimeType: arquivo.type, base64: e.target.result });
+        };
+        reader.readAsDataURL(arquivo);
+      } else {
+        enviar(null);
+      }
+    }
+
+    function mostrarPresencial() {
+      if (!usuarioAtual) return;
+      esconderTelasExtras();
+      const tela = document.getElementById('presencial');
+      if (tela) tela.style.setProperty('display', 'flex', 'important');
+      const mensagem = document.getElementById('mensagemPresencial');
+      if (mensagem) {
+        mensagem.textContent = '';
+        mensagem.className = '';
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function salvarPresencial() {
+      if (!usuarioAtual) return;
+
+      const local = document.getElementById('localPresencial').value.trim();
+      const arquivo = document.getElementById('arquivoPresencial').files[0];
+      if (!local) {
+        alert('Informe o local de atendimento.');
+        return;
+      }
+      if (!arquivo) {
+        alert('Anexe o relatório do plantão presencial.');
+        return;
+      }
+
+      const informacoes = {
+        nome: document.getElementById('presNome').value.trim(),
+        curso: document.getElementById('presCurso').value.trim(),
+        idade: document.getElementById('presIdade').value.trim(),
+        cidade: document.getElementById('presCidade').value.trim(),
+        genero: document.getElementById('presGenero').value.trim(),
+        etnico: document.getElementById('presEtnico').value.trim(),
+        orientacao: document.getElementById('presOrientacao').value.trim(),
+        comoSoube: document.getElementById('presComoSoube').value.trim(),
+        outras: document.getElementById('presOutras').value.trim()
+      };
+
+      const botao = document.getElementById('btnSalvarPresencial');
+      const mensagem = document.getElementById('mensagemPresencial');
+      botao.disabled = true;
+      botao.textContent = 'Enviando...';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        google.script.run
+          .withSuccessHandler(function(resposta) {
+            botao.disabled = false;
+            botao.textContent = 'Cadastrar';
+            mensagem.textContent = resposta.mensagem;
+            mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
+            if (resposta.sucesso) {
+              ['presNome','presCurso','presIdade','presCidade','presGenero','presEtnico','presOrientacao','presComoSoube','presOutras','localPresencial'].forEach(function(id) {
+                document.getElementById(id).value = '';
+              });
+              document.getElementById('arquivoPresencial').value = '';
+            }
+          })
+          .withFailureHandler(function(erro) {
+            botao.disabled = false;
+            botao.textContent = 'Cadastrar';
+            mensagem.textContent = 'Erro ao cadastrar.';
+            mensagem.className = 'erro';
+            console.error(erro);
+          })
+          .cadastrarPlantaoPresencial(
+            usuarioAtual.email,
+            usuarioAtual.nome,
+            usuarioAtual.perfil,
+            informacoes,
+            local,
+            { nome: arquivo.name, mimeType: arquivo.type, base64: e.target.result }
+          );
+      };
+      reader.readAsDataURL(arquivo);
     }
 
     function enviarFotosConfirmar() {
@@ -861,14 +1029,16 @@
     }
 
     function voltarAoJardimAdmin() {
-      document.getElementById('verificarPraticantes').style.display = 'none';
-      document.getElementById('jardimAdmin').style.display = 'flex';
+      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
+      esconderTelasExtras();
+      document.getElementById('jardimAdmin').style.setProperty('display', 'flex', 'important');
       window.scrollTo(0, 0);
     }
 
     function mostrarVerificarPraticantes() {
-      document.getElementById('jardimAdmin').style.display = 'none';
-      document.getElementById('verificarPraticantes').style.display = 'flex';
+      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
+      esconderTelasExtras();
+      document.getElementById('verificarPraticantes').style.setProperty('display', 'flex', 'important');
       document.getElementById('mensagemPraticantes').textContent = '';
       document.getElementById('mensagemPraticantes').className = '';
       window.scrollTo(0, 0);
@@ -915,8 +1085,9 @@
     // ----------------------------------------
 
     function mostrarJardimAdmin() {
-      document.getElementById('painel').style.display = 'none';
-      document.getElementById('jardimAdmin').style.display = 'flex';
+      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
+      esconderTelasExtras();
+      document.getElementById('jardimAdmin').style.setProperty('display', 'flex', 'important');
       carregarStatusManutencao();
       window.scrollTo(0, 0);
     }
@@ -929,16 +1100,14 @@
     function mostrarJustificativasAdmin() {
       if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
       esconderTelasExtras();
-      document.getElementById('painelJustificativas').style.display = 'block';
+      document.getElementById('painelJustificativas').style.setProperty('display', 'block', 'important');
       document.getElementById('listaJustificativasAdmin').textContent = 'Carregando...';
       carregarJustificativasAdmin();
       window.scrollTo(0, 0);
     }
 
     function fecharJustificativasAdmin() {
-      document.getElementById('painelJustificativas').style.display = 'none';
-      document.getElementById('jardimAdmin').style.display = 'flex';
-      window.scrollTo(0, 0);
+      mostrarFrequenciasAdmin();
     }
 
     function carregarJustificativasAdmin() {
@@ -1102,7 +1271,7 @@
     function mostrarNovaJanelaAdmin() {
       if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
       esconderTelasExtras();
-      document.getElementById('novaJanelaAdmin').style.display = 'flex';
+      document.getElementById('novaJanelaAdmin').style.setProperty('display', 'flex', 'important');
       document.getElementById('mensagemAdmin').textContent = '';
       document.getElementById('mensagemAdmin').className = '';
       carregarJanelas();
@@ -1110,9 +1279,7 @@
     }
 
     function fecharNovaJanelaAdmin() {
-      document.getElementById('novaJanelaAdmin').style.display = 'none';
-      document.getElementById('jardimAdmin').style.display = 'flex';
-      window.scrollTo(0, 0);
+      mostrarFrequenciasAdmin();
     }
 
     function abrirJanela() {
@@ -1709,17 +1876,7 @@
             botao.className = 'btn';
             botao.textContent = 'Selecionar';
             botao.onclick = function() {
-              if (typeof selecionarClienteRetorno === 'function') {
-                selecionarClienteRetorno(cliente);
-              } else {
-                clienteSelecionado = cliente;
-                const escolhido = document.getElementById('clienteEscolhido');
-                if (escolhido) {
-                  escolhido.textContent =
-                    (cliente.codigo || '') + ' — ' + (cliente.nome || '');
-                }
-                if (form) form.style.setProperty('display', 'block', 'important');
-              }
+              selecionarCliente(cliente);
             };
 
             card.appendChild(titulo);
@@ -1739,6 +1896,11 @@
 
       window.scrollTo(0, 0);
     };
+  </script>
+
+  <script>
+    window.PLANTAO_BUILD = '2026-10-05-fix-nav-2';
+    console.info('[Plantão] build:', window.PLANTAO_BUILD);
   </script>
 
 </body>
