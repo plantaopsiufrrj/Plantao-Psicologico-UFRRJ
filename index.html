@@ -539,6 +539,97 @@
     <label for="arquivoPresencial">Relatório de atendimento (PDF, DOC ou DOCX)</label><input type="file" id="arquivoPresencial" accept=".pdf,.doc,.docx" required style="width:100%;padding:8px;margin:8px 0 16px;">
     <div id="mensagemPresencial"></div><button class="btn" id="btnSalvarPresencial" onclick="salvarPresencial()">Cadastrar</button><span class="voltar" onclick="mostrarRetornarCliente()">← Voltar</span></div></div>
   <script>
+
+    // ============================================================
+    // COMPATIBILIDADE: APPS SCRIPT + GITHUB PAGES
+    // ============================================================
+    // No Apps Script, google.script.run continua funcionando normalmente.
+    // No GitHub Pages, informe abaixo a URL /exec da implantação Web App.
+    const APPS_SCRIPT_WEB_APP_URL = 'COLE_AQUI_A_URL_DO_WEB_APP_EXEC';
+
+    const executandoDentroDoAppsScript =
+      typeof google !== 'undefined' &&
+      google.script &&
+      google.script.run;
+
+    let tokenSessaoApi = sessionStorage.getItem('plantaoApiToken') || '';
+
+    if (!executandoDentroDoAppsScript) {
+      window.google = window.google || {};
+      window.google.script = window.google.script || {};
+
+      function criarExecutorRemoto() {
+        let sucesso = function() {};
+        let falha = function(erro) { console.error(erro); };
+
+        const executor = new Proxy({}, {
+          get: function(alvo, propriedade) {
+            if (propriedade === 'withSuccessHandler') {
+              return function(fn) {
+                sucesso = typeof fn === 'function' ? fn : sucesso;
+                return executor;
+              };
+            }
+
+            if (propriedade === 'withFailureHandler') {
+              return function(fn) {
+                falha = typeof fn === 'function' ? fn : falha;
+                return executor;
+              };
+            }
+
+            return function(...args) {
+              if (!APPS_SCRIPT_WEB_APP_URL ||
+                  APPS_SCRIPT_WEB_APP_URL.indexOf('COLE_AQUI') !== -1) {
+                falha(new Error('Configure APPS_SCRIPT_WEB_APP_URL no index.html com a URL /exec do Apps Script.'));
+                return;
+              }
+
+              fetch(APPS_SCRIPT_WEB_APP_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                  funcao: String(propriedade),
+                  argumentos: args,
+                  token: tokenSessaoApi
+                })
+              })
+              .then(function(resposta) {
+                if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+                return resposta.json();
+              })
+              .then(function(pacote) {
+                if (!pacote || pacote.ok !== true) {
+                  throw new Error((pacote && pacote.erro) || 'Resposta inválida do servidor.');
+                }
+
+                if (pacote.token) {
+                  tokenSessaoApi = pacote.token;
+                  sessionStorage.setItem('plantaoApiToken', tokenSessaoApi);
+                }
+
+                sucesso(pacote.resultado);
+              })
+              .catch(function(erro) {
+                falha(erro);
+              });
+            };
+          }
+        });
+
+        return executor;
+      }
+
+      Object.defineProperty(window.google.script, 'run', {
+        configurable: false,
+        enumerable: true,
+        get: function() {
+          return criarExecutorRemoto();
+        }
+      });
+    }
+
     // ----------------------------------------
     // USUÁRIO LOGADO (guardado em memória)
     // ----------------------------------------
@@ -718,6 +809,7 @@
     }
 
     function sair() {
+      if (!executandoDentroDoAppsScript) { tokenSessaoApi=''; sessionStorage.removeItem('plantaoApiToken'); }
       usuarioAtual = null;
       document.getElementById('painel').style.display = 'none';
       document.getElementById('inicio').style.display = 'block';
