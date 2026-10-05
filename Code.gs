@@ -1671,3 +1671,145 @@ function definirManutencao(perfil, ligar) {
     return { sucesso: false, mensagem: 'Erro ao alterar o status de manutenção.' };
   }
 }
+
+
+// ============================================================
+// API PARA GITHUB PAGES
+// ============================================================
+// Mantém o Apps Script como backend. O index.html hospedado no GitHub
+// chama esta API; quando o HTML roda dentro do Apps Script, google.script.run
+// continua sendo usado diretamente.
+
+const API_SESSAO_SEGUNDOS = 21600; // 6 horas
+
+function respostaApi_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function criarSessaoApi_(usuario) {
+  const token = Utilities.getUuid() + Utilities.getUuid();
+  CacheService.getScriptCache().put(
+    'api_sessao_' + token,
+    JSON.stringify({
+      email: String(usuario.email || '').trim().toLowerCase(),
+      nome: String(usuario.nome || ''),
+      perfil: String(usuario.perfil || '').trim().toLowerCase(),
+      ativo: usuario.ativo !== false,
+      habilitado: usuario.habilitado !== false
+    }),
+    API_SESSAO_SEGUNDOS
+  );
+  return token;
+}
+
+function obterSessaoApi_(token) {
+  if (!token) return null;
+  const bruto = CacheService.getScriptCache().get('api_sessao_' + token);
+  if (!bruto) return null;
+  try { return JSON.parse(bruto); } catch (e) { return null; }
+}
+
+function validarChamadaApi_(funcao, args, sessao) {
+  if (!sessao) throw new Error('Sessão expirada. Faça login novamente.');
+
+  const somenteBolsista = [
+    'obterDadosPlantao','obterParticipantesAtivos','atualizarParticipante',
+    'gerarRelatorioPraticantes','listarJustificativasPendentes',
+    'decidirJustificativaFalta','definirManutencao','abrirJanelaFrequencia',
+    'listarJanelasFrequencia','fecharJanelaFrequencia'
+  ];
+  if (somenteBolsista.includes(funcao) && sessao.perfil !== 'bolsista') {
+    throw new Error('Acesso restrito à equipe administrativa.');
+  }
+
+  const funcoesComEmailPrimeiro = [
+    'solicitarCliente','enviarFotosPlantonista','listarClientesPendentes',
+    'atualizarSituacaoCliente','cadastrarPlantaoPresencial',
+    'listarJustificativasPendentes','decidirJustificativaFalta',
+    'obterResumoPlantao','solicitarDadosClientes','obterDadosPlantao',
+    'obterParticipantesAtivos','atualizarParticipante','registrarFrequencia',
+    'enviarJustificativaFalta'
+  ];
+
+  if (funcoesComEmailPrimeiro.includes(funcao)) {
+    const emailRecebido = String(args[0] || '').trim().toLowerCase();
+    if (emailRecebido !== sessao.email) {
+      throw new Error('A chamada não corresponde ao usuário autenticado.');
+    }
+  }
+
+  // Funções administrativas antigas que recebem perfil como primeiro argumento.
+  const funcoesComPerfilPrimeiro = [
+    'gerarRelatorioPraticantes','definirManutencao','abrirJanelaFrequencia',
+    'listarJanelasFrequencia','fecharJanelaFrequencia'
+  ];
+  if (funcoesComPerfilPrimeiro.includes(funcao)) {
+    args[0] = sessao.perfil;
+  }
+}
+
+function executarFuncaoApi_(funcao, args) {
+  switch (funcao) {
+    case 'solicitarCliente': return solicitarCliente.apply(null, args);
+    case 'enviarFotosPlantonista': return enviarFotosPlantonista.apply(null, args);
+    case 'gerarRelatorioPraticantes': return gerarRelatorioPraticantes.apply(null, args);
+    case 'obterDadosPlantao': return obterDadosPlantao.apply(null, args);
+    case 'obterParticipantesAtivos': return obterParticipantesAtivos.apply(null, args);
+    case 'atualizarParticipante': return atualizarParticipante.apply(null, args);
+    case 'listarClientesPendentes': return listarClientesPendentes.apply(null, args);
+    case 'atualizarSituacaoCliente': return atualizarSituacaoCliente.apply(null, args);
+    case 'cadastrarPlantaoPresencial': return cadastrarPlantaoPresencial.apply(null, args);
+    case 'listarJustificativasPendentes': return listarJustificativasPendentes.apply(null, args);
+    case 'decidirJustificativaFalta': return decidirJustificativaFalta.apply(null, args);
+    case 'obterStatusManutencao': return obterStatusManutencao.apply(null, args);
+    case 'definirManutencao': return definirManutencao.apply(null, args);
+    case 'abrirJanelaFrequencia': return abrirJanelaFrequencia.apply(null, args);
+    case 'listarJanelasFrequencia': return listarJanelasFrequencia.apply(null, args);
+    case 'fecharJanelaFrequencia': return fecharJanelaFrequencia.apply(null, args);
+    case 'listarJanelasAbertas': return listarJanelasAbertas.apply(null, args);
+    case 'registrarFrequencia': return registrarFrequencia.apply(null, args);
+    case 'listarTodasJanelas': return listarTodasJanelas.apply(null, args);
+    case 'enviarJustificativaFalta': return enviarJustificativaFalta.apply(null, args);
+    case 'obterResumoPlantao': return obterResumoPlantao.apply(null, args);
+    case 'solicitarDadosClientes': return solicitarDadosClientes.apply(null, args);
+    default: throw new Error('Função não autorizada pela API.');
+  }
+}
+
+function doPost(e) {
+  try {
+    const corpo = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    const funcao = String(corpo.funcao || '');
+    const args = Array.isArray(corpo.argumentos) ? corpo.argumentos : [];
+
+    if (funcao === 'verificarLogin') {
+      const resultado = verificarLogin.apply(null, args);
+      if (resultado && resultado.sucesso) {
+        const token = criarSessaoApi_(resultado);
+        return respostaApi_({ ok: true, resultado: resultado, token: token });
+      }
+      return respostaApi_({ ok: true, resultado: resultado });
+    }
+
+    const sessao = obterSessaoApi_(corpo.token);
+    validarChamadaApi_(funcao, args, sessao);
+    const resultado = executarFuncaoApi_(funcao, args);
+
+    // Renova a sessão a cada chamada válida.
+    CacheService.getScriptCache().put(
+      'api_sessao_' + corpo.token,
+      JSON.stringify(sessao),
+      API_SESSAO_SEGUNDOS
+    );
+
+    return respostaApi_({ ok: true, resultado: resultado });
+
+  } catch (erro) {
+    return respostaApi_({
+      ok: false,
+      erro: erro && erro.message ? erro.message : String(erro)
+    });
+  }
+}
