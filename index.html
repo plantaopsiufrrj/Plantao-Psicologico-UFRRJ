@@ -138,6 +138,10 @@
     #mensagemLogin.erro, #mensagemPainel.erro, #mensagemMeusPlantoes.erro { color: #c0392b; }
     #mensagemLogin.sucesso, #mensagemPainel.sucesso, #mensagemMeusPlantoes.sucesso { color: #2e7d4f; }
 
+    #mensagemPsicologo { font-size: 14px; margin-bottom: 16px; min-height: 18px; }
+    #mensagemPsicologo.erro { color: #c0392b; }
+    #mensagemPsicologo.sucesso { color: #2e7d4f; }
+
     #mensagemMeusPlantoes {
       font-size: 14px;
       margin-bottom: 16px;
@@ -323,7 +327,7 @@
       <button id="btnMeusPlantoes" onclick="mostrarMeusPlantoes()">📁 Meus Plantões</button>
       <button onclick="mostrarEnviarFotos()" id="btnEnviarFotos">📸 Enviar Fotos</button>
       <button id="btnMaterialEstudo" disabled title="Em breve">📚 Material de Estudo (em breve)</button>
-      <button id="btnSolicitarPsicologo" disabled title="Em breve">🧑‍🤝‍🧑 Solicitar Psicólogo (em breve)</button>
+      <button id="btnSolicitarPsicologo" onclick="mostrarSolicitarPsicologo()">🧑‍🤝‍🧑 Solicitar Psicólogo</button>
       <button id="btnJardimAdmin" onclick="mostrarJardimAdmin()" style="display:none;">🌻 Jardim do Administrador</button>
     </div>
 
@@ -432,6 +436,50 @@
         <button class="btn" id="btnEnviarJustificativa" onclick="enviarJustificativa()">Enviar Justificativa</button>
         <span class="voltar" onclick="cancelarJustificativa()">← Escolher outro dia</span>
       </div>
+
+      <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
+    </div>
+  </div>
+
+  <!-- TELA SOLICITAR PSICÓLOGO -->
+  <div id="solicitarPsicologo" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
+    <div class="login-box" style="max-width:480px;">
+      <h2>Solicitar Psicólogo</h2>
+
+      <p style="margin-bottom:18px; line-height:1.5;">
+        Escolha quantos psicólogos você deseja receber (de 1 a 3). Os filtros são opcionais. Os dados serão enviados para o seu e-mail.
+      </p>
+
+      <div id="mensagemPsicologo"></div>
+
+      <label for="psiQuantidade">Quantos psicólogos deseja receber?</label>
+      <select id="psiQuantidade">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+
+      <label for="psiAbordagem">Abordagem</label>
+      <select id="psiAbordagem"><option value="">Qualquer</option></select>
+
+      <label for="psiPublico">Que tipo de público você atende?</label>
+      <select id="psiPublico"><option value="">Qualquer</option></select>
+
+      <label for="psiOnline">Atende on-line?</label>
+      <select id="psiOnline">
+        <option value="">Tanto faz</option>
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+      </select>
+
+      <label for="psiPresencial">Atende presencial?</label>
+      <select id="psiPresencial">
+        <option value="">Tanto faz</option>
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+      </select>
+
+      <button class="btn" id="btnSolicitarPsicologoConfirmar" onclick="enviarSolicitacaoPsicologos()" style="margin-top:12px;">Solicitar</button>
 
       <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
     </div>
@@ -767,6 +815,92 @@
         .solicitarCliente(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil);
     }
 
+    // ----------------------------------------
+    // SOLICITAR PSICÓLOGO
+    // ----------------------------------------
+    let opcoesPsicologosCarregadas = false;
+
+    function preencherSelectPsi(idSelect, opcoes) {
+      const sel = document.getElementById(idSelect);
+      while (sel.options.length > 1) sel.remove(1); // mantém só "Qualquer"
+      opcoes.forEach(function(o) {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.textContent = o;
+        sel.appendChild(opt);
+      });
+    }
+
+    function mostrarSolicitarPsicologo() {
+      if (!usuarioAtual) return;
+      esconderTelasExtras();
+      document.getElementById('solicitarPsicologo').style.setProperty('display', 'flex', 'important');
+
+      const mensagem = document.getElementById('mensagemPsicologo');
+      mensagem.textContent = '';
+      mensagem.className = '';
+
+      if (!opcoesPsicologosCarregadas) {
+        mensagem.textContent = 'Carregando filtros...';
+        google.script.run
+          .withSuccessHandler(function(r) {
+            if (r && r.sucesso) {
+              preencherSelectPsi('psiAbordagem', r.abordagens || []);
+              preencherSelectPsi('psiPublico', r.publicos || []);
+              opcoesPsicologosCarregadas = true;
+              mensagem.textContent = '';
+            } else {
+              mensagem.textContent = (r && r.mensagem) || 'Não foi possível carregar os filtros.';
+              mensagem.className = 'erro';
+            }
+          })
+          .withFailureHandler(function(erro) {
+            mensagem.textContent = 'Erro ao carregar os filtros. Você ainda pode solicitar sem filtrar por abordagem/público.';
+            mensagem.className = 'erro';
+            console.error(erro);
+          })
+          .obterOpcoesFiltroPsicologos(usuarioAtual.email);
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    function enviarSolicitacaoPsicologos() {
+      if (!usuarioAtual) return;
+
+      const mensagem = document.getElementById('mensagemPsicologo');
+      const botao = document.getElementById('btnSolicitarPsicologoConfirmar');
+
+      const quantidade = document.getElementById('psiQuantidade').value;
+      const filtros = {
+        abordagem: document.getElementById('psiAbordagem').value,
+        publico: document.getElementById('psiPublico').value,
+        online: document.getElementById('psiOnline').value,
+        presencial: document.getElementById('psiPresencial').value
+      };
+
+      mensagem.textContent = '';
+      mensagem.className = '';
+      botao.disabled = true;
+      botao.textContent = 'Solicitando...';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          botao.disabled = false;
+          botao.textContent = 'Solicitar';
+          mensagem.textContent = resposta.mensagem;
+          mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
+        })
+        .withFailureHandler(function(erro) {
+          botao.disabled = false;
+          botao.textContent = 'Solicitar';
+          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
+          mensagem.className = 'erro';
+          console.error(erro);
+        })
+        .solicitarPsicologos(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil, quantidade, filtros);
+    }
+
     let clienteSelecionado = null;
 
     let participantesCache=[];
@@ -777,7 +911,7 @@
     function baixarParticipantes(tipo){const lista=participantesCache.filter(p=>p.ativo&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));const linhas=[['Nome','E-mail','Telefone','Perfil','Ativo','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],...lista.map(p=>[p.nome,p.email,p.telefone,p.perfil,'Sim',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='participantes-'+tipo.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(a.href);}
 
     function esconderTelasExtras() {
-      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca'].forEach(function(id) {
+      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.style.setProperty('display', 'none', 'important');
       });
