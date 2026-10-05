@@ -528,6 +528,7 @@
       <div class="menu-painel" style="margin-top:20px;">
         <button onclick="mostrarNovaJanelaAdmin()">🗓️ Abrir nova janela de frequência</button>
         <button onclick="mostrarJustificativasAdmin()">📝 Justificativas pendentes</button>
+        <button onclick="mostrarConferirPresencasAdmin(false)">✅ Conferir presenças</button>
       </div>
       <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
     </div>
@@ -570,6 +571,39 @@
         <button class="btn" onclick="carregarJustificativasAdmin()" style="margin-top:12px;">↻ Atualizar lista</button>
         <span class="voltar" onclick="mostrarFrequenciasAdmin()">← Voltar para Frequências dos Plantonistas</span>
       </div>
+
+  <!-- CONFERIR PRESENÇAS (Jardim do Administrador > Frequências) -->
+  <div id="conferirPresencasAdmin" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
+    <div class="login-box" style="max-width:680px;">
+      <h2>Conferir presenças</h2>
+      <p style="margin:8px 0 16px;color:#4a5c52;">Clique em uma pessoa para abrir o relatório de supervisões e treinamentos. Contas inativas não aparecem.</p>
+      <button class="btn" onclick="mostrarAusenciasAdmin(true)" style="margin-bottom:16px;">⚠️ Conferir ausências</button>
+      <div id="mensagemPresencasAdmin" style="min-height:18px; margin-bottom:10px; font-size:14px;"></div>
+      <div id="listaPresencasAdmin">Carregando...</div>
+      <span class="voltar" onclick="mostrarFrequenciasAdmin()">← Voltar para Frequências dos Plantonistas</span>
+    </div>
+  </div>
+
+  <!-- CONFERIR AUSÊNCIAS -->
+  <div id="ausenciasAdmin" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
+    <div class="login-box" style="max-width:680px;">
+      <h2>Conferir ausências</h2>
+      <p id="textoRegraAusencias" style="margin:8px 0 16px;color:#4a5c52;"></p>
+      <div id="mensagemAusenciasAdmin" style="min-height:18px; margin-bottom:10px; font-size:14px;"></div>
+      <div id="listaAusenciasAdmin">Carregando...</div>
+      <span class="voltar" onclick="mostrarConferirPresencasAdmin(true)">← Voltar para Conferir presenças</span>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO DE PRESENÇA DE UMA PESSOA -->
+  <div id="relatorioPresencaAdmin" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
+    <div class="login-box" style="max-width:680px;">
+      <h2 id="relatorioPresencaTitulo"></h2>
+      <p id="relatorioPresencaSub" style="margin:8px 0 16px;color:#4a5c52;"></p>
+      <div id="relatorioPresencaCorpo"></div>
+      <span class="voltar" onclick="voltarRelatorioPresencaAdmin()">← Voltar</span>
+    </div>
+  </div>
 
   <!-- VERIFICAR PRATICANTES (download de relatórios por período, dentro do Jardim do Administrador) -->
   <div id="verificarPraticantes" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
@@ -911,7 +945,7 @@
     function baixarParticipantes(tipo){const lista=participantesCache.filter(p=>p.ativo&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));const linhas=[['Nome','E-mail','Telefone','Perfil','Ativo','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],...lista.map(p=>[p.nome,p.email,p.telefone,p.perfil,'Sim',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='participantes-'+tipo.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(a.href);}
 
     function esconderTelasExtras() {
-      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca'].forEach(function(id) {
+      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.style.setProperty('display', 'none', 'important');
       });
@@ -1392,6 +1426,185 @@
           alert('Erro ao alterar o status de manutenção.');
         })
         .definirManutencao(usuarioAtual.perfil, novoValor);
+    }
+
+    // ----------------------------------------
+    // CONFERIR PRESENÇAS / AUSÊNCIAS (bolsista)
+    // ----------------------------------------
+    let presencasAdminCache = null;
+    let origemRelatorioPresenca = 'presencas';
+
+    function ehBolsistaLogado_() {
+      return usuarioAtual && String(usuarioAtual.perfil).trim().toLowerCase() === 'bolsista';
+    }
+
+    function criarEl_(tag, texto, estilo) {
+      const el = document.createElement(tag);
+      if (texto !== undefined && texto !== null) el.textContent = texto;
+      if (estilo) el.style.cssText = estilo;
+      return el;
+    }
+
+    function percentualFaltas_(t) {
+      return t.obrigatorios > 0 ? Math.round((t.faltas / t.obrigatorios) * 100) + '%' : '—';
+    }
+
+    function corSituacao_(s) {
+      if (s === 'Presente') return '#2e7d4f';
+      if (s === 'Falta') return '#c0392b';
+      if (s === 'Falta justificada') return '#b7791f';
+      return '#7a8a80';
+    }
+
+    // Busca os dados no servidor (uma única chamada serve para as 3 telas).
+    function carregarPresencasAdmin(aoTerminar) {
+      google.script.run
+        .withSuccessHandler(function(r) {
+          if (!r || !r.sucesso) {
+            aoTerminar(null, (r && r.mensagem) || 'Não foi possível carregar as presenças.');
+            return;
+          }
+          presencasAdminCache = r;
+          aoTerminar(r, null);
+        })
+        .withFailureHandler(function(erro) {
+          console.error(erro);
+          aoTerminar(null, 'Erro ao carregar as presenças. Tente novamente.');
+        })
+        .obterPresencasAdmin(usuarioAtual.email);
+    }
+
+    function cartaoPessoaPresenca_(p, textoExtra, origem) {
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.style.cssText = 'display:block; width:100%; text-align:left; background:#fff; border:1px solid #d7ded9; border-radius:8px; padding:12px; margin-bottom:10px; cursor:pointer;';
+      botao.appendChild(criarEl_('strong', (p.alerta ? '⚠️ ' : '') + p.nome));
+      botao.appendChild(criarEl_('span', ' · ' + p.perfil, 'color:#4a5c52;'));
+      if (textoExtra) botao.appendChild(criarEl_('div', textoExtra, 'margin-top:6px; font-size:13px; color:#4a5c52;'));
+      botao.onclick = function() { abrirRelatorioPresencaAdmin(p, origem); };
+      return botao;
+    }
+
+    function mostrarConferirPresencasAdmin(usarCache) {
+      if (!ehBolsistaLogado_()) return;
+      esconderTelasExtras();
+      document.getElementById('conferirPresencasAdmin').style.setProperty('display', 'flex', 'important');
+      const lista = document.getElementById('listaPresencasAdmin');
+      const msg = document.getElementById('mensagemPresencasAdmin');
+      msg.textContent = '';
+      msg.className = '';
+      window.scrollTo(0, 0);
+
+      const desenhar = function(r) {
+        lista.innerHTML = '';
+        if (!r.participantes.length) {
+          lista.textContent = 'Nenhum plantonista ou treinando ativo encontrado.';
+          return;
+        }
+        r.participantes.forEach(function(p) {
+          const extra = 'Presenças: ' + p.totais.presencas + ' · Faltas: ' + p.totais.faltas + ' · Justificadas: ' + p.totais.justificadas;
+          lista.appendChild(cartaoPessoaPresenca_(p, extra, 'presencas'));
+        });
+      };
+
+      if (usarCache && presencasAdminCache) { desenhar(presencasAdminCache); return; }
+
+      lista.textContent = 'Carregando...';
+      carregarPresencasAdmin(function(r, erro) {
+        if (!r) { lista.textContent = ''; msg.textContent = erro; msg.className = 'erro'; return; }
+        desenhar(r);
+      });
+    }
+
+    function mostrarAusenciasAdmin(usarCache) {
+      if (!ehBolsistaLogado_()) return;
+      esconderTelasExtras();
+      document.getElementById('ausenciasAdmin').style.setProperty('display', 'flex', 'important');
+      const lista = document.getElementById('listaAusenciasAdmin');
+      const msg = document.getElementById('mensagemAusenciasAdmin');
+      msg.textContent = '';
+      msg.className = '';
+      window.scrollTo(0, 0);
+
+      const desenhar = function(r) {
+        document.getElementById('textoRegraAusencias').textContent =
+          'Pessoas com ' + r.minimoConsecutivas + ' ou mais faltas consecutivas em supervisões/treinamentos obrigatórios nos últimos ' + r.diasPeriodo + ' dias. Faltas justificadas e justificativas pendentes não contam como falta.';
+        lista.innerHTML = '';
+        const alertas = r.participantes.filter(function(p) { return p.alerta; });
+        if (!alertas.length) {
+          lista.textContent = 'Ninguém com ' + r.minimoConsecutivas + ' ou mais faltas consecutivas no período. 🌻';
+          return;
+        }
+        alertas.forEach(function(p) {
+          const texto = p.sequencia.maior + ' faltas consecutivas: ' + p.sequencia.datas.join(', ');
+          lista.appendChild(cartaoPessoaPresenca_(p, texto, 'ausencias'));
+        });
+      };
+
+      if (usarCache && presencasAdminCache) { desenhar(presencasAdminCache); return; }
+
+      lista.textContent = 'Carregando...';
+      carregarPresencasAdmin(function(r, erro) {
+        if (!r) { lista.textContent = ''; msg.textContent = erro; msg.className = 'erro'; return; }
+        desenhar(r);
+      });
+    }
+
+    function abrirRelatorioPresencaAdmin(p, origem) {
+      if (!ehBolsistaLogado_()) return;
+      origemRelatorioPresenca = origem || 'presencas';
+      esconderTelasExtras();
+      document.getElementById('relatorioPresencaAdmin').style.setProperty('display', 'flex', 'important');
+
+      document.getElementById('relatorioPresencaTitulo').textContent = p.nome;
+      let sub = p.perfil + ' · Obrigatório: ' + p.obrigacoes.join(' e ');
+      if (p.regraPlantonista) sub += ' (treinando com regra de plantonista)';
+      document.getElementById('relatorioPresencaSub').textContent = sub;
+
+      const corpo = document.getElementById('relatorioPresencaCorpo');
+      corpo.innerHTML = '';
+
+      // Totais
+      const tot = criarEl_('div', null, 'display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-bottom:16px;');
+      [['Presenças', p.totais.presencas, '#2e7d4f'], ['Faltas', p.totais.faltas, '#c0392b'], ['Faltas justificadas', p.totais.justificadas, '#b7791f']].forEach(function(t) {
+        const caixa = criarEl_('div', null, 'background:#f5f7f6; border-radius:8px; padding:10px; text-align:center;');
+        caixa.appendChild(criarEl_('div', String(t[1]), 'font-size:22px; font-weight:700; color:' + t[2] + ';'));
+        caixa.appendChild(criarEl_('div', t[0], 'font-size:13px;'));
+        tot.appendChild(caixa);
+      });
+      corpo.appendChild(tot);
+      if (p.totais.pendentes > 0) {
+        corpo.appendChild(criarEl_('p', p.totais.pendentes + ' justificativa(s) pendente(s) de análise (ainda não contam como falta).', 'font-size:13px; color:#7a8a80; margin:-6px 0 14px;'));
+      }
+
+      // Total em relação ao tempo
+      const tempo = criarEl_('div', null, 'background:#f5f7f6; border-radius:8px; padding:12px; margin-bottom:16px; line-height:1.6;');
+      tempo.appendChild(criarEl_('strong', 'Ausências em relação ao tempo'));
+      tempo.appendChild(criarEl_('div', 'Últimos 30 dias: ' + p.tempo.periodo.faltas + ' falta(s) em ' + p.tempo.periodo.obrigatorios + ' encontro(s) obrigatório(s) (' + percentualFaltas_(p.tempo.periodo) + ')'));
+      tempo.appendChild(criarEl_('div', 'Desde o início dos registros: ' + p.tempo.geral.faltas + ' falta(s) em ' + p.tempo.geral.obrigatorios + ' encontro(s) obrigatório(s) (' + percentualFaltas_(p.tempo.geral) + ')'));
+      if (p.alerta) {
+        tempo.appendChild(criarEl_('div', '⚠️ ' + p.sequencia.maior + ' faltas consecutivas nos últimos 30 dias: ' + p.sequencia.datas.join(', '), 'color:#c0392b; font-weight:600;'));
+      }
+      corpo.appendChild(tempo);
+
+      // Encontros datados
+      corpo.appendChild(criarEl_('h3', 'Supervisões e treinamentos', 'font-size:15px; margin-bottom:8px;'));
+      if (!p.encontros.length) {
+        corpo.appendChild(criarEl_('p', 'Ainda não houve encontros obrigatórios encerrados para esta pessoa.'));
+      }
+      p.encontros.forEach(function(e) {
+        const linha = criarEl_('div', null, 'display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; border:1px solid #d7ded9; border-radius:8px; padding:10px; margin-bottom:8px; background:#fff;');
+        linha.appendChild(criarEl_('span', e.data + ' · ' + e.horaInicio + '–' + e.horaFim + ' · ' + e.tipoRotulo));
+        linha.appendChild(criarEl_('strong', e.situacao, 'color:' + corSituacao_(e.situacao) + ';'));
+        corpo.appendChild(linha);
+      });
+
+      window.scrollTo(0, 0);
+    }
+
+    function voltarRelatorioPresencaAdmin() {
+      if (origemRelatorioPresenca === 'ausencias') mostrarAusenciasAdmin(true);
+      else mostrarConferirPresencasAdmin(true);
     }
 
     function mostrarFrequenciasAdmin() {
