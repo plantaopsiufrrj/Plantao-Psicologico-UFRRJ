@@ -844,19 +844,6 @@
       window.scrollTo(0, 0);
     }
 
-    function mostrarEnviarFotos() {
-      if (!usuarioAtual) return;
-      esconderTelasExtras();
-      const tela = document.getElementById('enviarFotos');
-      if (tela) tela.style.setProperty('display', 'flex', 'important');
-      const mensagem = document.getElementById('mensagemFotos');
-      if (mensagem) {
-        mensagem.textContent = '';
-        mensagem.className = '';
-      }
-      window.scrollTo(0, 0);
-    }
-
     function voltarAoPainel() {
       esconderTelasExtras();
       const painel = document.getElementById('painel');
@@ -1625,6 +1612,30 @@
         })
         .verificarLogin(email, senha);
     }
+  </script>
+
+
+  <script>
+    window.mostrarEnviarFotos = function() {
+      if (!window.usuarioAtual && typeof usuarioAtual === 'undefined') return;
+
+      if (typeof esconderTelasExtras === 'function') {
+        esconderTelasExtras();
+      }
+
+      const tela = document.getElementById('enviarFotos');
+      if (tela) {
+        tela.style.setProperty('display', 'flex', 'important');
+      }
+
+      const mensagem = document.getElementById('mensagemFotos');
+      if (mensagem) {
+        mensagem.textContent = '';
+        mensagem.className = '';
+      }
+
+      window.scrollTo(0, 0);
+    };
   </script>
 
 </body>
