@@ -114,10 +114,36 @@
       padding: 20px;
     }
 
-    #minhasSupervisoes, #conferirPresenca, #enviarFotos {
-      display: none;
+    .justificativa-item {
+      background: #f5f7f6;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      text-align: left;
+      font-size: 14px;
     }
-
+    .justificativa-item .motivo {
+      margin: 6px 0 10px;
+      color: #4a5c52;
+      white-space: pre-wrap;
+    }
+    .justificativa-item .acoes {
+      display: flex;
+      gap: 10px;
+    }
+    .justificativa-item .acoes button {
+      flex: 1;
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #fff;
+    }
+    .btn-aprovar { background: #3f7f5f; }
+    .btn-aprovar:hover { background: #345f47; }
+    .btn-recusar { background: #c0392b; }
+    .btn-recusar:hover { background: #a1301f; }
     .login-box .btn { width: 100%; }
     .voltar {
       display: block;
@@ -318,8 +344,9 @@
     <div class="menu-painel">
       <button id="btnSolicitarCliente" onclick="solicitarCliente()">📋 Solicitar Cliente</button>
       <button id="btnRetornarCliente" onclick="acaoPainel('retornarCliente')">🔄 Retornar Cliente</button>
-      <button id="btnSupervisoes" onclick="mostrarMinhasSupervisoes()">🌱 Minhas Supervisões/Treinamentos</button>
+      <button id="btnRegistrarFrequencia" onclick="mostrarRegistrarFrequencia()">🗓️ Registrar Frequência</button>
       <button id="btnMeusPlantoes" onclick="mostrarMeusPlantoes()">📁 Meus Plantões</button>
+      <button onclick="mostrarRegistrarFalta()" id="btnRegistrarFalta">📝 Registrar Motivo de Falta</button>
       <button onclick="mostrarEnviarFotos()" id="btnEnviarFotos">📸 Enviar Fotos</button>
       <button id="btnMaterialEstudo" disabled title="Em breve">📚 Material de Estudo (em breve)</button>
       <button id="btnSolicitarPsicologo" disabled title="Em breve">🧑‍🤝‍🧑 Solicitar Psicólogo (em breve)</button>
@@ -347,30 +374,6 @@
     </div>
   </div>
 
-  <!-- MINHAS SUPERVISÕES / TREINAMENTOS -->
-  <div id="minhasSupervisoes" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
-    <div class="login-box" style="max-width:480px;">
-      <h2>Minhas Supervisões/Treinamentos</h2>
-      <div class="menu-painel" style="margin-top:20px;">
-        <button onclick="mostrarRegistrarFrequencia()">🗓️ Registrar Frequência</button>
-        <button onclick="mostrarRegistrarFalta()">📝 Registrar Motivo de Falta</button>
-        <button onclick="mostrarConferirPresenca()">✅ Conferir Presença</button>
-      </div>
-      <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
-    </div>
-  </div>
-
-  <!-- CONFERIR PRESENÇA -->
-  <div id="conferirPresenca" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
-    <div class="login-box" style="max-width:680px;">
-      <h2>Conferir Presença</h2>
-      <p style="margin:8px 0 18px;color:#4a5c52;">Histórico das suas supervisões e treinamentos.</p>
-      <div id="mensagemConferirPresenca"></div>
-      <div id="listaConferirPresenca">Carregando...</div>
-      <span class="voltar" onclick="mostrarMinhasSupervisoes()">← Voltar para Minhas Supervisões/Treinamentos</span>
-    </div>
-  </div>
-
   <!-- TELA REGISTRAR FREQUÊNCIA (plantonista) -->
   <div id="registrarFrequencia">
     <div class="login-box" style="max-width:480px;">
@@ -388,16 +391,16 @@
       <div id="blocoFormRegistro" style="display:none;">
         <p id="janelaSelecionadaInfo" style="margin-bottom:16px; font-weight:500;"></p>
 
-        <div id="camposNarracao">
-          <label for="registroNarrou">Narrou no dia?</label>
-          <select id="registroNarrou">
-            <option value="">Selecione</option>
-            <option value="sim">Sim</option>
-            <option value="nao">Não</option>
-          </select>
+        <div id="camposDetalhesFrequencia">
+        <label for="registroNarrou">Narrou no dia?</label>
+        <select id="registroNarrou">
+          <option value="">Selecione</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
 
-          <label for="registroPalavra">Palavra do dia</label>
-          <input type="text" id="registroPalavra" placeholder="Obrigatório">
+        <label for="registroPalavra">Palavras do dia</label>
+        <input type="text" id="registroPalavra" placeholder="Informe as palavras do dia">
         </div>
 
         <button class="btn" id="btnConfirmarRegistro" onclick="confirmarRegistroFrequencia()">Confirmar Registro</button>
@@ -460,24 +463,18 @@
   <div id="jardimAdmin">
     <div class="login-box" style="max-width:560px;">
       <h2>Jardim do Administrador</h2>
-<button class="btn" onclick="mostrarDadosPlantao()" style="margin-bottom:10px;">📊 Dados do Plantão</button>
+
+      <div id="mensagemAdmin"></div>
+
+      <button class="btn" onclick="mostrarDadosPlantao()" style="margin-bottom:10px;">📊 Dados do Plantão</button>
       <button class="btn" onclick="mostrarParticipantes()" style="margin-bottom:10px;">👥 Verificar participantes ativos</button>
-      <button class="btn" onclick="mostrarJustificativasAdmin()" style="margin-bottom:10px;">📝 Justificativas pendentes</button>
-      <button class="btn" onclick="mostrarNovaJanelaAdmin()" style="margin-bottom:10px;">🗓️ Abrir nova janela de frequência</button>
       <button class="btn" onclick="mostrarVerificarPraticantes()" style="margin-bottom:10px;">📥 Verificar Praticantes</button>
       <button class="btn" id="btnManutencao" onclick="alternarManutencao()" style="margin-bottom:20px;">🔧 Manutenção: ...</button>
 
-      
+      <button class="btn" onclick="mostrarFrequenciasAdmin()" style="margin-bottom:24px;">
+        Frequências dos Plantonistas
+      </button>
 
-      
-
-      <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
-    </div>
-  </div>
-  <div id="novaJanelaAdmin" style="display:none;">
-    <div class="login-box" style="max-width:560px;">
-      <h2>Janelas de frequência</h2>
-      <div id="mensagemAdmin"></div>
       <h3 style="font-size:15px; margin-bottom:10px;">Abrir nova janela de frequência</h3>
 
       <label for="janelaData">Data</label>
@@ -500,17 +497,10 @@
 
       <h3 style="font-size:15px; margin:24px 0 10px;">Janelas cadastradas</h3>
       <div id="listaJanelas">Carregando...</div>
-      <span class="voltar" onclick="fecharNovaJanelaAdmin()">← Voltar ao Jardim do Administrador</span>
+
+      <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
     </div>
   </div>
-
-<div id="painelJustificativas" style="display:none; margin-top:24px; text-align:left;">
-        <h3 style="font-size:16px; margin-bottom:10px;">Justificativas pendentes</h3>
-        <div id="mensagemJustificativasAdmin"></div>
-        <div id="listaJustificativasAdmin">Carregando...</div>
-        <button class="btn" onclick="carregarJustificativasAdmin()" style="margin-top:12px;">↻ Atualizar lista</button>
-        <span class="voltar" onclick="fecharJustificativasAdmin()">← Voltar ao Jardim do Administrador</span>
-      </div>
 
   <!-- VERIFICAR PRATICANTES (download de relatórios por período, dentro do Jardim do Administrador) -->
   <div id="verificarPraticantes" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
@@ -536,6 +526,20 @@
     </div>
   </div>
 
+  <!-- FREQUÊNCIAS DOS PLANTONISTAS (aprovação de justificativas, dentro do Jardim do Administrador) -->
+  <div id="frequenciasAdmin">
+    <div class="login-box" style="max-width:560px;">
+      <h2>Frequências dos Plantonistas</h2>
+
+      <div id="mensagemFrequenciasAdmin"></div>
+
+      <h3 style="font-size:15px; margin-bottom:10px;">Justificativas pendentes</h3>
+      <div id="listaJustificativas">Carregando...</div>
+
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+    </div>
+  </div>
+
   <div id="dadosPlantao" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="login-box" style="max-width:650px;width:100%;"><h2>Dados do Plantão</h2><div id="dadosPlantaoConteudo">Carregando...</div><span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span></div></div>
   <div id="participantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="login-box" style="max-width:1000px;width:100%;"><h2>Verificar participantes ativos</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0;"><button class="btn" onclick="baixarParticipantes('Plantonista')">Baixar plantonistas ativos</button><button class="btn" onclick="baixarParticipantes('Treinando')">Baixar treinandos ativos</button><button class="btn" onclick="baixarParticipantes('Todos')">Baixar todos ativos</button></div><div id="listaParticipantes">Carregando...</div><span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span></div></div>
   <div id="retornarCliente"><div class="login-box" style="max-width:560px;width:100%;">
@@ -555,9 +559,6 @@
     <label for="presCurso">Curso:</label><input id="presCurso" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presIdade">Idade:</label><input id="presIdade" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presCidade">Cidade:</label><input id="presCidade" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
-    <label for="presEstado">Estado:</label><input id="presEstado" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
-    <label for="presPais">País:</label><input id="presPais" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
-    <label for="presRelacaoUfrrj">Relação com a UFRRJ?</label><input id="presRelacaoUfrrj" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presGenero">Gênero:</label><input id="presGenero" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presEtnico">Identificação Étnico-racial:</label><input id="presEtnico" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presOrientacao">Orientação afetiva/sexual:</label><input id="presOrientacao" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
@@ -567,110 +568,10 @@
     <label for="arquivoPresencial">Relatório de atendimento (PDF, DOC ou DOCX)</label><input type="file" id="arquivoPresencial" accept=".pdf,.doc,.docx" required style="width:100%;padding:8px;margin:8px 0 16px;">
     <div id="mensagemPresencial"></div><button class="btn" id="btnSalvarPresencial" onclick="salvarPresencial()">Cadastrar</button><span class="voltar" onclick="mostrarRetornarCliente()">← Voltar</span></div></div>
   <script>
-
-    // ============================================================
-    // COMPATIBILIDADE: APPS SCRIPT + GITHUB PAGES
-    // ============================================================
-    // No Apps Script, google.script.run continua funcionando normalmente.
-    // No GitHub Pages, informe abaixo a URL /exec da implantação Web App.
-    const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwAKhHQ4Wxludm9qFYmocz78-pX9rmFHns4WlEQ0Aa32bcaQKdA55EZHzIgpfH7ZJ1sfQ/exec';
-
-    const executandoDentroDoAppsScript =
-      typeof google !== 'undefined' &&
-      google.script &&
-      google.script.run;
-
-    let tokenSessaoApi = sessionStorage.getItem('plantaoApiToken') || '';
-
-    if (!executandoDentroDoAppsScript) {
-      window.google = window.google || {};
-      window.google.script = window.google.script || {};
-
-      function criarExecutorRemoto() {
-        let sucesso = function() {};
-        let falha = function(erro) { console.error(erro); };
-
-        const executor = new Proxy({}, {
-          get: function(alvo, propriedade) {
-            if (propriedade === 'withSuccessHandler') {
-              return function(fn) {
-                sucesso = typeof fn === 'function' ? fn : sucesso;
-                return executor;
-              };
-            }
-
-            if (propriedade === 'withFailureHandler') {
-              return function(fn) {
-                falha = typeof fn === 'function' ? fn : falha;
-                return executor;
-              };
-            }
-
-            return function(...args) {
-              if (!APPS_SCRIPT_WEB_APP_URL ||
-                  APPS_SCRIPT_WEB_APP_URL.indexOf('COLE_AQUI') !== -1) {
-                falha(new Error('Configure APPS_SCRIPT_WEB_APP_URL no index.html com a URL /exec do Apps Script.'));
-                return;
-              }
-
-              fetch(APPS_SCRIPT_WEB_APP_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                  funcao: String(propriedade),
-                  argumentos: args,
-                  token: tokenSessaoApi
-                })
-              })
-              .then(function(resposta) {
-                if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
-                return resposta.json();
-              })
-              .then(function(pacote) {
-                if (!pacote || pacote.ok !== true) {
-                  throw new Error((pacote && pacote.erro) || 'Resposta inválida do servidor.');
-                }
-
-                if (pacote.token) {
-                  tokenSessaoApi = pacote.token;
-                  sessionStorage.setItem('plantaoApiToken', tokenSessaoApi);
-                }
-
-                sucesso(pacote.resultado);
-              })
-              .catch(function(erro) {
-                falha(erro);
-              });
-            };
-          }
-        });
-
-        return executor;
-      }
-
-      Object.defineProperty(window.google.script, 'run', {
-        configurable: false,
-        enumerable: true,
-        get: function() {
-          return criarExecutorRemoto();
-        }
-      });
-    }
-
     // ----------------------------------------
     // USUÁRIO LOGADO (guardado em memória)
     // ----------------------------------------
     let usuarioAtual = null;
-
-    function rotuloTipoJanela(tipo) {
-      const mapa = {
-        supervisao_plantonistas: 'Supervisão Plantonistas',
-        supervisao_treinandos: 'Supervisão Treinandos',
-        treinamento_teorico: 'Treinamento teórico'
-      };
-      return mapa[tipo] || tipo;
-    }
 
     // ----------------------------------------
     // NAVEGAÇÃO ENTRE TELAS
@@ -702,8 +603,8 @@
       const ehBolsista = perfil && perfil.toString().trim().toLowerCase() === 'bolsista';
       ['btnJardimAdmin','btnDadosPlantao','btnParticipantes'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=ehBolsista?'block':'none';});
       const inabilitado = !ehBolsista && usuarioAtual.habilitado === false;
-      const permitidosInabilitado = ['btnSupervisoes','btnMaterialEstudo'];
-      const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnSupervisoes','btnMeusPlantoes','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo'];
+      const permitidosInabilitado = ['btnRegistrarFrequencia','btnRegistrarFalta','btnMaterialEstudo'];
+      const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnRegistrarFrequencia','btnMeusPlantoes','btnRegistrarFalta','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo'];
       todosBotoes.forEach(id=>{
         const el=document.getElementById(id);
         if(el) el.style.display=(!inabilitado || permitidosInabilitado.includes(id))?'':'none';
@@ -766,11 +667,27 @@
     function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}function escapeAttr(s){return escapeHtml(s);}
     function baixarParticipantes(tipo){const lista=participantesCache.filter(p=>p.ativo&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));const linhas=[['Nome','E-mail','Telefone','Perfil','Ativo','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],...lista.map(p=>[p.nome,p.email,p.telefone,p.perfil,'Sim',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='participantes-'+tipo.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(a.href);}
 
-    function esconderTelasExtras() {
-      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'minhasSupervisoes', 'conferirPresenca'].forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el) el.style.setProperty('display', 'none', 'important');
-      });
+    function esconderTelasExtras(){ ['painel','meusPlantoes','jardimAdmin','registrarFrequencia','registrarFalta','frequenciasAdmin','retornarCliente','presencial','dadosPlantao','participantes','enviarFotos','verificarPraticantes'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display='none';}); }
+    function mostrarRetornarCliente(){ if(!usuarioAtual)return; esconderTelasExtras(); document.getElementById('retornarCliente').style.display='flex'; document.getElementById('formRetorno').style.display='none'; document.getElementById('listaClientesPendentes').textContent='Carregando...'; google.script.run.withSuccessHandler(r=>{const el=document.getElementById('listaClientesPendentes');el.innerHTML='';if(!r.sucesso){el.textContent=r.mensagem;return;}if(!r.clientes.length){el.textContent='Você não possui clientes pendentes.';return;}r.clientes.forEach(c=>{const b=document.createElement('button');b.className='menu-painel';b.style.cssText='width:100%;margin:7px 0;padding:12px;background:#f5f7f6;border:1px solid #d7ded9;border-radius:7px;text-align:left;cursor:pointer;';b.textContent=c.codigo+' — '+c.nome;b.onclick=()=>selecionarCliente(c);el.appendChild(b);});}).withFailureHandler(()=>document.getElementById('listaClientesPendentes').textContent='Erro ao carregar clientes.').listarClientesPendentes(usuarioAtual.email,usuarioAtual.nome,usuarioAtual.perfil); window.scrollTo(0,0); }
+    function selecionarCliente(c){clienteSelecionado=c;document.getElementById('clienteEscolhido').textContent=c.codigo+' — '+c.nome;document.getElementById('formRetorno').style.display='block';document.getElementById('situacaoCliente').value='';document.getElementById('detalheRetorno').value='';document.getElementById('arquivoRelatorio').value='';alterarCamposRetorno();}
+    function alterarCamposRetorno(){const s=document.getElementById('situacaoCliente').value;document.getElementById('campoRelatorio').style.display=s==='Atendido'?'block':'none';document.getElementById('campoDetalhe').style.display=['Desistente','Transferido'].includes(s)?'block':'none';document.getElementById('labelDetalhe').textContent=s==='Desistente'?'Motivo da desistência':'Nome do plantonista que receberá o cliente';}
+    function cancelarRetorno(){document.getElementById('formRetorno').style.display='none';clienteSelecionado=null;mostrarRetornarCliente();}
+    function salvarRetornoCliente(){const s=document.getElementById('situacaoCliente').value;if(!s){alert('Selecione a situação.');return;}const detalhe=document.getElementById('detalheRetorno').value.trim();if(s!=='Atendido'&&!detalhe){alert('Preencha o campo solicitado.');return;}const enviar=arquivo=>{const b=document.getElementById('btnSalvarRetorno');b.disabled=true;b.textContent='Salvando...';google.script.run.withSuccessHandler(r=>{b.disabled=false;b.textContent='Confirmar';alert(r.mensagem);if(r.sucesso)mostrarRetornarCliente();}).withFailureHandler(()=>{b.disabled=false;b.textContent='Confirmar';alert('Erro ao salvar. Tente novamente.');}).atualizarSituacaoCliente(usuarioAtual.email,usuarioAtual.nome,usuarioAtual.perfil,clienteSelecionado.codigo,s,detalhe,arquivo);};if(s==='Atendido'){const f=document.getElementById('arquivoRelatorio').files[0];if(!f){alert('Anexe o relatório.');return;}const reader=new FileReader();reader.onload=e=>enviar({nome:f.name,mimeType:f.type,base64:e.target.result});reader.readAsDataURL(f);}else enviar(null);}
+    function mostrarPresencial(){document.getElementById('retornarCliente').style.display='none';document.getElementById('presencial').style.display='flex';}
+    function salvarPresencial(){const local=document.getElementById('localPresencial').value.trim();const f=document.getElementById('arquivoPresencial').files[0];if(!local){alert('Informe o local de atendimento.');return;}if(!f){alert('Anexe o relatório do plantão presencial.');return;}const informacoes={nome:document.getElementById('presNome').value.trim(),curso:document.getElementById('presCurso').value.trim(),idade:document.getElementById('presIdade').value.trim(),cidade:document.getElementById('presCidade').value.trim(),genero:document.getElementById('presGenero').value.trim(),etnico:document.getElementById('presEtnico').value.trim(),orientacao:document.getElementById('presOrientacao').value.trim(),comoSoube:document.getElementById('presComoSoube').value.trim(),outras:document.getElementById('presOutras').value.trim()};const b=document.getElementById('btnSalvarPresencial');b.disabled=true;b.textContent='Enviando...';const reader=new FileReader();reader.onload=e=>{google.script.run.withSuccessHandler(r=>{b.disabled=false;b.textContent='Cadastrar';document.getElementById('mensagemPresencial').textContent=r.mensagem;if(r.sucesso){['presNome','presCurso','presIdade','presCidade','presGenero','presEtnico','presOrientacao','presComoSoube','presOutras','localPresencial'].forEach(id=>document.getElementById(id).value='');document.getElementById('arquivoPresencial').value='';}}).withFailureHandler(()=>{b.disabled=false;b.textContent='Cadastrar';document.getElementById('mensagemPresencial').textContent='Erro ao cadastrar.';}).cadastrarPlantaoPresencial(usuarioAtual.email,usuarioAtual.nome,usuarioAtual.perfil,informacoes,local,{nome:f.name,mimeType:f.type,base64:e.target.result});};reader.readAsDataURL(f);}
+
+    // ----------------------------------------
+    // ENVIAR FOTOS
+    // ----------------------------------------
+
+    function mostrarEnviarFotos() {
+      if (!usuarioAtual) return;
+      esconderTelasExtras();
+      document.getElementById('enviarFotos').style.display = 'flex';
+      document.getElementById('mensagemFotos').textContent = '';
+      document.getElementById('mensagemFotos').className = '';
+      document.getElementById('arquivosFotos').value = '';
+      window.scrollTo(0, 0);
     }
 
     function enviarFotosConfirmar() {
@@ -821,7 +738,6 @@
     }
 
     function sair() {
-      if (!executandoDentroDoAppsScript) { tokenSessaoApi=''; sessionStorage.removeItem('plantaoApiToken'); }
       usuarioAtual = null;
       document.getElementById('painel').style.display = 'none';
       document.getElementById('inicio').style.display = 'block';
@@ -835,7 +751,6 @@
     // ----------------------------------------
 
     function mostrarMeusPlantoes() {
-      esconderTelasExtras();
       document.getElementById('painel').style.display = 'none';
       document.getElementById('meusPlantoes').style.display = 'flex';
       document.getElementById('mensagemMeusPlantoes').textContent = '';
@@ -845,13 +760,20 @@
     }
 
     function voltarAoPainel() {
-      esconderTelasExtras();
-      const painel = document.getElementById('painel');
-      if (painel) painel.style.setProperty('display', 'block', 'important');
+      document.getElementById('meusPlantoes').style.display = 'none';
+      document.getElementById('jardimAdmin').style.display = 'none';
+      document.getElementById('registrarFrequencia').style.display = 'none';
+      document.getElementById('registrarFalta').style.display = 'none';
+      document.getElementById('frequenciasAdmin').style.display = 'none';
+      document.getElementById('retornarCliente').style.display = 'none';
+      document.getElementById('presencial').style.display = 'none';
+      document.getElementById('dadosPlantao').style.display='none';document.getElementById('participantes').style.display='none';
+      document.getElementById('painel').style.display = 'block';
       window.scrollTo(0, 0);
     }
 
     function voltarAoJardimAdmin() {
+      document.getElementById('frequenciasAdmin').style.display = 'none';
       document.getElementById('verificarPraticantes').style.display = 'none';
       document.getElementById('jardimAdmin').style.display = 'flex';
       window.scrollTo(0, 0);
@@ -908,134 +830,11 @@
     function mostrarJardimAdmin() {
       document.getElementById('painel').style.display = 'none';
       document.getElementById('jardimAdmin').style.display = 'flex';
+      document.getElementById('mensagemAdmin').textContent = '';
+      document.getElementById('mensagemAdmin').className = '';
+      carregarJanelas();
       carregarStatusManutencao();
       window.scrollTo(0, 0);
-    }
-
-
-    // ----------------------------------------
-    // JUSTIFICATIVAS PENDENTES (bolsista/admin)
-    // ----------------------------------------
-
-    function mostrarJustificativasAdmin() {
-      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
-      esconderTelasExtras();
-      document.getElementById('painelJustificativas').style.display = 'block';
-      document.getElementById('listaJustificativasAdmin').textContent = 'Carregando...';
-      carregarJustificativasAdmin();
-      window.scrollTo(0, 0);
-    }
-
-    function fecharJustificativasAdmin() {
-      document.getElementById('painelJustificativas').style.display = 'none';
-      document.getElementById('jardimAdmin').style.display = 'flex';
-      window.scrollTo(0, 0);
-    }
-
-    function carregarJustificativasAdmin() {
-      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
-      const lista = document.getElementById('listaJustificativasAdmin');
-      const mensagem = document.getElementById('mensagemJustificativasAdmin');
-      lista.textContent = 'Carregando...';
-      mensagem.textContent = '';
-      mensagem.className = '';
-
-      google.script.run
-        .withSuccessHandler(function(resposta) {
-          if (!resposta || !resposta.sucesso) {
-            lista.textContent = (resposta && resposta.mensagem) || 'Não foi possível carregar as justificativas.';
-            return;
-          }
-          const itens = resposta.justificativas || [];
-          lista.innerHTML = '';
-          if (!itens.length) {
-            lista.textContent = 'Não há justificativas pendentes.';
-            return;
-          }
-
-          itens.forEach(function(j) {
-            const card = document.createElement('div');
-            card.className = 'janela-item';
-            card.style.cssText = 'display:block; margin-bottom:12px; padding:14px;';
-
-            const titulo = document.createElement('strong');
-            titulo.textContent = j.nome + ' · ' + j.data;
-            card.appendChild(titulo);
-
-            const email = document.createElement('p');
-            email.textContent = j.email;
-            email.style.margin = '6px 0';
-            card.appendChild(email);
-
-            const motivo = document.createElement('p');
-            motivo.textContent = j.motivo;
-            motivo.style.cssText = 'white-space:pre-wrap; margin:8px 0 12px;';
-            card.appendChild(motivo);
-
-            if (j.enviadoEm) {
-              const dataEnvio = document.createElement('small');
-              dataEnvio.textContent = 'Enviada em: ' + j.enviadoEm;
-              card.appendChild(dataEnvio);
-            }
-
-            const acoes = document.createElement('div');
-            acoes.style.cssText = 'display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;';
-
-            [['Aprovar', 'Aprovada'], ['Recusar', 'Recusada']].forEach(function(opcao) {
-              const botao = document.createElement('button');
-              botao.textContent = opcao[0];
-              botao.className = 'btn';
-              if (opcao[1] === 'Recusada') {
-                botao.style.background = '#a94442';
-              }
-              botao.onclick = function() {
-                analisarJustificativaAdmin(j.id, opcao[1], botao, card);
-              };
-              acoes.appendChild(botao);
-            });
-            card.appendChild(acoes);
-            lista.appendChild(card);
-          });
-        })
-        .withFailureHandler(function(erro) {
-          lista.textContent = 'Erro ao carregar as justificativas.';
-          console.error(erro);
-        })
-        .listarJustificativasPendentes(usuarioAtual.email);
-    }
-
-    function analisarJustificativaAdmin(id, decisao, botao, card) {
-      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
-      const botoes = card.querySelectorAll('button');
-      botoes.forEach(b => b.disabled = true);
-      botao.textContent = decisao === 'Aprovada' ? 'Aprovando...' : 'Recusando...';
-
-      google.script.run
-        .withSuccessHandler(function(resposta) {
-          if (resposta && resposta.sucesso) {
-            card.remove();
-            const lista = document.getElementById('listaJustificativasAdmin');
-            if (!lista.querySelector('.janela-item')) lista.textContent = 'Não há justificativas pendentes.';
-            const mensagem = document.getElementById('mensagemJustificativasAdmin');
-            mensagem.textContent = resposta.mensagem;
-            mensagem.className = 'sucesso';
-          } else {
-            botoes.forEach(b => b.disabled = false);
-            botao.textContent = decisao === 'Aprovada' ? 'Aprovar' : 'Recusar';
-            const mensagem = document.getElementById('mensagemJustificativasAdmin');
-            mensagem.textContent = (resposta && resposta.mensagem) || 'Não foi possível registrar a decisão.';
-            mensagem.className = 'erro';
-          }
-        })
-        .withFailureHandler(function(erro) {
-          botoes.forEach(b => b.disabled = false);
-          botao.textContent = decisao === 'Aprovada' ? 'Aprovar' : 'Recusar';
-          const mensagem = document.getElementById('mensagemJustificativasAdmin');
-          mensagem.textContent = 'Erro ao registrar a decisão.';
-          mensagem.className = 'erro';
-          console.error(erro);
-        })
-        .decidirJustificativaFalta(usuarioAtual.email, id, decisao);
     }
 
     // ----------------------------------------
@@ -1082,20 +881,11 @@
         .definirManutencao(usuarioAtual.perfil, novoValor);
     }
 
-    function mostrarNovaJanelaAdmin() {
-      if (!usuarioAtual || String(usuarioAtual.perfil).trim().toLowerCase() !== 'bolsista') return;
-      esconderTelasExtras();
-      document.getElementById('novaJanelaAdmin').style.display = 'flex';
-      document.getElementById('mensagemAdmin').textContent = '';
-      document.getElementById('mensagemAdmin').className = '';
-      carregarJanelas();
-      window.scrollTo(0, 0);
-    }
-
-    function fecharNovaJanelaAdmin() {
-      document.getElementById('novaJanelaAdmin').style.display = 'none';
-      document.getElementById('jardimAdmin').style.display = 'flex';
-      window.scrollTo(0, 0);
+    function rotuloTipoFrequencia(tipo) {
+      if (tipo === 'supervisao_treinandos') return 'Supervisão Treinandos';
+      if (tipo === 'treinamento_teorico' || tipo === 'treinamento') return 'Treinamento teórico';
+      if (tipo === 'supervisao_plantonistas') return 'Supervisão Plantonistas';
+      return 'Supervisão Plantonistas';
     }
 
     function abrirJanela() {
@@ -1159,7 +949,7 @@
             const info = document.createElement('span');
             const statusClasse = j.status === 'Aberta' ? 'status-aberta' : 'status-fechada';
             info.innerHTML = j.data + ' · ' + j.horaInicio + '–' + j.horaFim + ' · ' +
-              rotuloTipoJanela(j.tipo) +
+              rotuloTipoFrequencia(j.tipo) +
               ' · <span class="' + statusClasse + '">' + j.status + '</span>';
 
             item.appendChild(info);
@@ -1192,80 +982,14 @@
         .fecharJanelaFrequencia(usuarioAtual.perfil, id);
     }
 
-    function mostrarMinhasSupervisoes() {
-      if (!usuarioAtual) return;
-      esconderTelasExtras();
-      document.getElementById('minhasSupervisoes').style.setProperty('display','flex','important');
-      window.scrollTo(0, 0);
-    }
-
-    function mostrarConferirPresenca() {
-      if (!usuarioAtual) return;
-      esconderTelasExtras();
-      document.getElementById('conferirPresenca').style.setProperty('display','flex','important');
-      const lista = document.getElementById('listaConferirPresenca');
-      const mensagem = document.getElementById('mensagemConferirPresenca');
-      lista.textContent = 'Carregando...';
-      mensagem.textContent = '';
-
-      google.script.run
-        .withSuccessHandler(function(resposta) {
-          if (!resposta || !resposta.sucesso) {
-            lista.textContent = resposta && resposta.mensagem ? resposta.mensagem : 'Não foi possível carregar o histórico.';
-            return;
-          }
-          if (!resposta.encontros || resposta.encontros.length === 0) {
-            lista.textContent = 'Nenhuma supervisão ou treinamento cadastrado ainda.';
-            return;
-          }
-
-          lista.innerHTML = '';
-          resposta.encontros.forEach(function(item) {
-            const card = document.createElement('div');
-            card.style.cssText = 'border:1px solid #d7ded9;border-radius:8px;padding:14px;margin:12px 0;text-align:left;background:#f5f7f6;';
-
-            let situacao = item.situacao || 'Ausente';
-            let icone = situacao === 'Presente' ? '✅' :
-                        situacao === 'Falta justificada' ? '🟡' :
-                        situacao === 'Justificativa pendente' ? '🕐' : '❌';
-
-            let conteudo =
-              '<div style="font-weight:600;margin-bottom:6px;">' +
-              escapeHtml(item.data) + ' · ' + escapeHtml(item.tipoRotulo) +
-              '</div>' +
-              '<div style="margin-bottom:5px;">' + icone + ' <strong>' + escapeHtml(situacao) + '</strong></div>' +
-              '<div style="font-size:13px;color:#4a5c52;">Horário: ' +
-              escapeHtml(item.horaInicio) + '–' + escapeHtml(item.horaFim) + '</div>';
-
-            if (item.palavraDia) {
-              conteudo += '<div style="margin-top:8px;"><strong>Palavras do dia:</strong> ' +
-                escapeHtml(item.palavraDia) + '</div>';
-            }
-            if (item.motivoJustificativa) {
-              conteudo += '<div style="margin-top:8px;"><strong>Motivo da falta:</strong> ' +
-                escapeHtml(item.motivoJustificativa) + '</div>';
-            }
-
-            card.innerHTML = conteudo;
-            lista.appendChild(card);
-          });
-        })
-        .withFailureHandler(function(erro) {
-          lista.textContent = 'Erro ao carregar o histórico de presença.';
-          console.error(erro);
-        })
-        .obterHistoricoSupervisoes(usuarioAtual.email);
-    }
-
     // ----------------------------------------
     // REGISTRAR FREQUÊNCIA (plantonista)
     // ----------------------------------------
     let janelaSelecionadaId = null;
 
     function mostrarRegistrarFrequencia() {
-      esconderTelasExtras();
       document.getElementById('painel').style.display = 'none';
-      document.getElementById('registrarFrequencia').style.setProperty('display','flex','important');
+      document.getElementById('registrarFrequencia').style.display = 'flex';
       document.getElementById('mensagemFrequencia').textContent = '';
       document.getElementById('mensagemFrequencia').className = '';
       cancelarRegistroFrequencia(); // garante que começa na lista, não no formulário
@@ -1295,7 +1019,7 @@
 
             const info = document.createElement('span');
             info.textContent = j.data + ' · ' + j.horaInicio + '–' + j.horaFim +
-              ' · ' + rotuloTipoJanela(j.tipo);
+              ' · ' + rotuloTipoFrequencia(j.tipo);
             item.appendChild(info);
 
             const btnRegistrar = document.createElement('button');
@@ -1315,29 +1039,26 @@
         .listarJanelasAbertas();
     }
 
-    let tipoJanelaSelecionada = null;
-
     function selecionarJanela(id, data, inicio, fim, tipo) {
       janelaSelecionadaId = id;
-      tipoJanelaSelecionada = tipo;
 
       document.getElementById('blocoListaJanelas').style.display = 'none';
       document.getElementById('blocoFormRegistro').style.display = 'block';
       document.getElementById('janelaSelecionadaInfo').textContent =
         'Janela selecionada: ' + data + ' · ' + inicio + '–' + fim +
-        ' · ' + rotuloTipoJanela(tipo);
-
-      // Treinamento teórico não pede narração nem palavra do dia — só confirmar presença
-      const exigeCampos = (tipo === 'supervisao_plantonistas' || tipo === 'supervisao_treinandos');
-      document.getElementById('camposNarracao').style.display = exigeCampos ? 'block' : 'none';
+        ' · ' + rotuloTipoFrequencia(tipo);
 
       document.getElementById('registroNarrou').value = '';
       document.getElementById('registroPalavra').value = '';
+      const treinamentoTeorico = tipo === 'treinamento_teorico';
+      document.getElementById('camposDetalhesFrequencia').style.display = treinamentoTeorico ? 'none' : 'block';
+      document.getElementById('registroNarrou').required = !treinamentoTeorico;
+      document.getElementById('registroPalavra').required = !treinamentoTeorico;
+      window.tipoJanelaSelecionada = tipo;
     }
 
     function cancelarRegistroFrequencia() {
       janelaSelecionadaId = null;
-      tipoJanelaSelecionada = null;
       document.getElementById('blocoFormRegistro').style.display = 'none';
       document.getElementById('blocoListaJanelas').style.display = 'block';
     }
@@ -1345,7 +1066,6 @@
     function confirmarRegistroFrequencia() {
       if (!janelaSelecionadaId || !usuarioAtual) return;
 
-      const exigeCampos = (tipoJanelaSelecionada === 'supervisao_plantonistas' || tipoJanelaSelecionada === 'supervisao_treinandos');
       const narrou = document.getElementById('registroNarrou').value;
       const palavra = document.getElementById('registroPalavra').value.trim();
       const mensagem = document.getElementById('mensagemFrequencia');
@@ -1354,17 +1074,16 @@
       mensagem.textContent = '';
       mensagem.className = '';
 
-      if (exigeCampos) {
-        if (!narrou) {
-          mensagem.textContent = 'Selecione se narrou ou não no dia.';
-          mensagem.className = 'erro';
-          return;
-        }
-        if (!palavra) {
-          mensagem.textContent = 'A palavra do dia é obrigatória para esse tipo de supervisão.';
-          mensagem.className = 'erro';
-          return;
-        }
+      const treinamentoTeorico = window.tipoJanelaSelecionada === 'treinamento_teorico';
+      if (!treinamentoTeorico && !narrou) {
+        mensagem.textContent = 'Selecione se narrou ou não no dia.';
+        mensagem.className = 'erro';
+        return;
+      }
+      if (!treinamentoTeorico && !palavra) {
+        mensagem.textContent = 'Informe as palavras do dia.';
+        mensagem.className = 'erro';
+        return;
       }
 
       botao.disabled = true;
@@ -1390,8 +1109,8 @@
           usuarioAtual.nome,
           usuarioAtual.perfil,
           janelaSelecionadaId,
-          exigeCampos ? (narrou === 'sim') : null,
-          exigeCampos ? palavra : ''
+          treinamentoTeorico ? null : narrou === 'sim',
+          treinamentoTeorico ? '' : palavra
         );
     }
 
@@ -1401,9 +1120,8 @@
     let janelaFaltaId = null;
 
     function mostrarRegistrarFalta() {
-      esconderTelasExtras();
       document.getElementById('painel').style.display = 'none';
-      document.getElementById('registrarFalta').style.setProperty('display','flex','important');
+      document.getElementById('registrarFalta').style.display = 'flex';
       document.getElementById('mensagemFalta').textContent = '';
       document.getElementById('mensagemFalta').className = '';
       cancelarJustificativa();
@@ -1434,7 +1152,7 @@
             const info = document.createElement('span');
             const statusClasse = j.status === 'Aberta' ? 'status-aberta' : 'status-fechada';
             info.innerHTML = j.data + ' · ' + j.horaInicio + '–' + j.horaFim + ' · ' +
-              rotuloTipoJanela(j.tipo) +
+              rotuloTipoFrequencia(j.tipo) +
               ' · <span class="' + statusClasse + '">' + j.status + '</span>';
             item.appendChild(info);
 
@@ -1462,7 +1180,7 @@
       document.getElementById('blocoFormFalta').style.display = 'block';
       document.getElementById('janelaFaltaInfo').textContent =
         'Dia selecionado: ' + data + ' · ' + inicio + '–' + fim +
-        ' · ' + rotuloTipoJanela(tipo);
+        ' · ' + rotuloTipoFrequencia(tipo);
 
       document.getElementById('motivoFalta').value = '';
     }
@@ -1517,6 +1235,92 @@
     }
 
     // ----------------------------------------
+    // FREQUÊNCIAS DOS PLANTONISTAS (aprovação pelo bolsista)
+    // ----------------------------------------
+
+    function mostrarFrequenciasAdmin() {
+      document.getElementById('jardimAdmin').style.display = 'none';
+      document.getElementById('frequenciasAdmin').style.display = 'flex';
+      document.getElementById('mensagemFrequenciasAdmin').textContent = '';
+      document.getElementById('mensagemFrequenciasAdmin').className = '';
+      carregarJustificativas();
+      window.scrollTo(0, 0);
+    }
+
+    function carregarJustificativas() {
+      const lista = document.getElementById('listaJustificativas');
+      lista.textContent = 'Carregando...';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          if (!resposta || !resposta.sucesso) {
+            lista.textContent = (resposta && resposta.mensagem) ? resposta.mensagem : 'Não foi possível carregar as justificativas.';
+            return;
+          }
+          if (!Array.isArray(resposta.justificativas) || resposta.justificativas.length === 0) {
+            lista.textContent = 'Nenhuma justificativa pendente no momento.';
+            return;
+          }
+
+          lista.innerHTML = '';
+          resposta.justificativas.forEach(function(j) {
+            const item = document.createElement('div');
+            item.className = 'justificativa-item';
+
+            const titulo = document.createElement('div');
+            titulo.innerHTML = '<strong>' + j.nome + '</strong> · ' + j.data;
+            item.appendChild(titulo);
+
+            const motivo = document.createElement('div');
+            motivo.className = 'motivo';
+            motivo.textContent = j.motivo;
+            item.appendChild(motivo);
+
+            const acoes = document.createElement('div');
+            acoes.className = 'acoes';
+
+            const btnAprovar = document.createElement('button');
+            btnAprovar.textContent = 'Aprovar';
+            btnAprovar.className = 'btn-aprovar';
+            btnAprovar.onclick = function() { decidirJustificativa(j.id, 'aprovada'); };
+            acoes.appendChild(btnAprovar);
+
+            const btnRecusar = document.createElement('button');
+            btnRecusar.textContent = 'Recusar';
+            btnRecusar.className = 'btn-recusar';
+            btnRecusar.onclick = function() { decidirJustificativa(j.id, 'recusada'); };
+            acoes.appendChild(btnRecusar);
+
+            item.appendChild(acoes);
+            lista.appendChild(item);
+          });
+        })
+        .withFailureHandler(function(erro) {
+          lista.textContent = 'Erro ao carregar as justificativas: ' + (erro && erro.message ? erro.message : String(erro || 'erro desconhecido'));
+          console.error(erro);
+        })
+        .listarJustificativasPendentes(usuarioAtual.perfil);
+    }
+
+    function decidirJustificativa(id, decisao) {
+      const mensagem = document.getElementById('mensagemFrequenciasAdmin');
+      mensagem.textContent = '';
+      mensagem.className = '';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          mensagem.textContent = resposta.mensagem;
+          mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
+          carregarJustificativas();
+        })
+        .withFailureHandler(function(erro) {
+          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
+          mensagem.className = 'erro';
+          console.error(erro);
+        })
+        .decidirJustificativaFalta(usuarioAtual.perfil, id, decisao);
+    }
+
     function carregarResumoPlantao() {
       const resumoTexto = document.getElementById('resumoTexto');
       resumoTexto.textContent = 'Carregando...';
@@ -1612,116 +1416,41 @@
         })
         .verificarLogin(email, senha);
     }
-  </script>
 
-
-  <script>
-    window.mostrarEnviarFotos = function() {
-      if (!window.usuarioAtual && typeof usuarioAtual === 'undefined') return;
-
-      if (typeof esconderTelasExtras === 'function') {
-        esconderTelasExtras();
-      }
-
-      const tela = document.getElementById('enviarFotos');
-      if (tela) {
-        tela.style.setProperty('display', 'flex', 'important');
-      }
-
-      const mensagem = document.getElementById('mensagemFotos');
-      if (mensagem) {
-        mensagem.textContent = '';
-        mensagem.className = '';
-      }
-
-      window.scrollTo(0, 0);
-    };
-  </script>
-
-
-  <script>
-    window.mostrarRetornarCliente = function() {
-      if (typeof usuarioAtual === 'undefined' || !usuarioAtual) return;
-
-      if (typeof esconderTelasExtras === 'function') {
-        esconderTelasExtras();
-      }
-
-      const tela = document.getElementById('retornarCliente');
-      if (tela) {
-        tela.style.setProperty('display', 'flex', 'important');
-      }
-
-      const lista = document.getElementById('listaClientesPendentes');
-      const form = document.getElementById('formRetorno');
-      if (lista) lista.textContent = 'Carregando...';
-      if (form) form.style.setProperty('display', 'none', 'important');
-
-      clienteSelecionado = null;
-
-      google.script.run
-        .withSuccessHandler(function(resposta) {
-          if (!lista) return;
-
-          if (!resposta || !resposta.sucesso) {
-            lista.textContent = resposta && resposta.mensagem
-              ? resposta.mensagem
-              : 'Não foi possível carregar os clientes.';
-            return;
-          }
-
-          const clientes = resposta.clientes || [];
-          if (!clientes.length) {
-            lista.textContent = 'Nenhum cliente pendente no momento.';
-            return;
-          }
-
-          lista.innerHTML = '';
-          clientes.forEach(function(cliente) {
-            const card = document.createElement('div');
-            card.style.cssText =
-              'border:1px solid #d7ded9;border-radius:8px;padding:14px;margin:10px 0;text-align:left;';
-
-            const titulo = document.createElement('div');
-            titulo.style.marginBottom = '10px';
-            titulo.innerHTML =
-              '<strong>' + escapeHtml(cliente.codigo || '') + '</strong> — ' +
-              escapeHtml(cliente.nome || '');
-
-            const botao = document.createElement('button');
-            botao.className = 'btn';
-            botao.textContent = 'Selecionar';
-            botao.onclick = function() {
-              if (typeof selecionarClienteRetorno === 'function') {
-                selecionarClienteRetorno(cliente);
-              } else {
-                clienteSelecionado = cliente;
-                const escolhido = document.getElementById('clienteEscolhido');
-                if (escolhido) {
-                  escolhido.textContent =
-                    (cliente.codigo || '') + ' — ' + (cliente.nome || '');
-                }
-                if (form) form.style.setProperty('display', 'block', 'important');
-              }
-            };
-
-            card.appendChild(titulo);
-            card.appendChild(botao);
-            lista.appendChild(card);
-          });
-        })
-        .withFailureHandler(function(erro) {
-          if (lista) lista.textContent = 'Erro ao carregar os clientes pendentes.';
-          console.error(erro);
-        })
-        .listarClientesPendentes(
-          usuarioAtual.email,
-          usuarioAtual.nome,
-          usuarioAtual.perfil
-        );
-
-      window.scrollTo(0, 0);
-    };
+    // Garante que todas as funções chamadas diretamente pelo HTML estejam disponíveis no escopo global.
+    window.abrirJanela = abrirJanela;
+    window.acaoPainel = acaoPainel;
+    window.alterarCamposRetorno = alterarCamposRetorno;
+    window.alternarManutencao = alternarManutencao;
+    window.baixarParticipantes = baixarParticipantes;
+    window.baixarRelatorioPraticantes = baixarRelatorioPraticantes;
+    window.cancelarJustificativa = cancelarJustificativa;
+    window.cancelarRegistroFrequencia = cancelarRegistroFrequencia;
+    window.cancelarRetorno = cancelarRetorno;
+    window.confirmarRegistroFrequencia = confirmarRegistroFrequencia;
+    window.enviarFotosConfirmar = enviarFotosConfirmar;
+    window.enviarJustificativa = enviarJustificativa;
+    window.fazerLogin = fazerLogin;
+    window.mostrarDadosPlantao = mostrarDadosPlantao;
+    window.mostrarEnviarFotos = mostrarEnviarFotos;
+    window.mostrarFrequenciasAdmin = mostrarFrequenciasAdmin;
+    window.mostrarInicio = mostrarInicio;
+    window.mostrarJardimAdmin = mostrarJardimAdmin;
+    window.mostrarLogin = mostrarLogin;
+    window.mostrarMeusPlantoes = mostrarMeusPlantoes;
+    window.mostrarParticipantes = mostrarParticipantes;
+    window.mostrarPresencial = mostrarPresencial;
+    window.mostrarRegistrarFalta = mostrarRegistrarFalta;
+    window.mostrarRegistrarFrequencia = mostrarRegistrarFrequencia;
+    window.mostrarRetornarCliente = mostrarRetornarCliente;
+    window.mostrarVerificarPraticantes = mostrarVerificarPraticantes;
+    window.sair = sair;
+    window.salvarPresencial = salvarPresencial;
+    window.salvarRetornoCliente = salvarRetornoCliente;
+    window.solicitarCliente = solicitarCliente;
+    window.solicitarDadosClientes = solicitarDadosClientes;
+    window.voltarAoJardimAdmin = voltarAoJardimAdmin;
+    window.voltarAoPainel = voltarAoPainel;
   </script>
 
 </body>
