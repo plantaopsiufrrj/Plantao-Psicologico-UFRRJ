@@ -568,6 +568,60 @@
     <label for="arquivoPresencial">Relatório de atendimento (PDF, DOC ou DOCX)</label><input type="file" id="arquivoPresencial" accept=".pdf,.doc,.docx" required style="width:100%;padding:8px;margin:8px 0 16px;">
     <div id="mensagemPresencial"></div><button class="btn" id="btnSalvarPresencial" onclick="salvarPresencial()">Cadastrar</button><span class="voltar" onclick="mostrarRetornarCliente()">← Voltar</span></div></div>
   <script>
+    // ============================================================
+    // PONTE GITHUB PAGES -> GOOGLE APPS SCRIPT
+    // Mantém a interface google.script.run usada pelo restante do site,
+    // mas envia as chamadas ao backend por HTTP.
+    // ============================================================
+    const APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbwAKhHQ4Wxludm9qFYmocz78-pX9rmFHns4WlEQ0Aa32bcaQKdA55EZHzIgpfH7ZJ1sfQ/exec';
+
+    (function instalarPonteAppsScript() {
+      function criarExecutor(successHandler, failureHandler) {
+        return new Proxy({}, {
+          get: function(_target, prop) {
+            if (prop === 'withSuccessHandler') {
+              return function(fn) { return criarExecutor(fn, failureHandler); };
+            }
+            if (prop === 'withFailureHandler') {
+              return function(fn) { return criarExecutor(successHandler, fn); };
+            }
+            if (prop === 'withUserObject') {
+              return function() { return criarExecutor(successHandler, failureHandler); };
+            }
+            return function(...args) {
+              fetch(APPS_SCRIPT_API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ acao: String(prop), argumentos: args })
+              })
+              .then(function(resposta) {
+                if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+                return resposta.text();
+              })
+              .then(function(texto) {
+                let pacote;
+                try { pacote = JSON.parse(texto); }
+                catch (_) { throw new Error('O backend não retornou JSON válido. Verifique a implantação do Apps Script.'); }
+                if (!pacote || pacote.api !== 'plantao-ufrrj') {
+                  throw new Error('Resposta inesperada do backend. Confirme a URL /exec e a versão implantada.');
+                }
+                if (!pacote.ok) throw new Error(pacote.erro || 'Erro no backend.');
+                if (typeof successHandler === 'function') successHandler(pacote.resultado);
+              })
+              .catch(function(erro) {
+                console.error('Erro na API [' + String(prop) + ']:', erro);
+                if (typeof failureHandler === 'function') failureHandler(erro);
+              });
+            };
+          }
+        });
+      }
+      window.google = window.google || {};
+      window.google.script = window.google.script || {};
+      window.google.script.run = criarExecutor(null, null);
+    })();
+
     // ----------------------------------------
     // USUÁRIO LOGADO (guardado em memória)
     // ----------------------------------------
