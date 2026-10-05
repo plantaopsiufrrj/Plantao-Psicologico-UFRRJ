@@ -761,7 +761,7 @@
     function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}function escapeAttr(s){return escapeHtml(s);}
     function baixarParticipantes(tipo){const lista=participantesCache.filter(p=>p.ativo&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));const linhas=[['Nome','E-mail','Telefone','Perfil','Ativo','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],...lista.map(p=>[p.nome,p.email,p.telefone,p.perfil,'Sim',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='participantes-'+tipo.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(a.href);}
 
-    function esconderTelasExtras(){ ['painel','meusPlantoes','jardimAdmin','registrarFrequencia','registrarFalta','retornarCliente','presencial','dadosPlantao','participantes','enviarFotos','verificarPraticantes','painelJustificativas','novaJanelaAdmin'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display='none';}); }
+    function esconderTelasExtras(){ ['painel','meusPlantoes','jardimAdmin','registrarFrequencia','registrarFalta','retornarCliente','presencial','dadosPlantao','participantes','enviarFotos','verificarPraticantes','painelJustificativas','novaJanelaAdmin'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.setProperty('display','none','important');}); }
     function mostrarRetornarCliente(){ if(!usuarioAtual)return; esconderTelasExtras(); document.getElementById('retornarCliente').style.display='flex'; document.getElementById('formRetorno').style.display='none'; document.getElementById('listaClientesPendentes').textContent='Carregando...'; google.script.run.withSuccessHandler(r=>{const el=document.getElementById('listaClientesPendentes');el.innerHTML='';if(!r.sucesso){el.textContent=r.mensagem;return;}if(!r.clientes.length){el.textContent='Você não possui clientes pendentes.';return;}r.clientes.forEach(c=>{const b=document.createElement('button');b.className='menu-painel';b.style.cssText='width:100%;margin:7px 0;padding:12px;background:#f5f7f6;border:1px solid #d7ded9;border-radius:7px;text-align:left;cursor:pointer;';b.textContent=c.codigo+' — '+c.nome;b.onclick=()=>selecionarCliente(c);el.appendChild(b);});}).withFailureHandler(()=>document.getElementById('listaClientesPendentes').textContent='Erro ao carregar clientes.').listarClientesPendentes(usuarioAtual.email,usuarioAtual.nome,usuarioAtual.perfil); window.scrollTo(0,0); }
     function selecionarCliente(c){clienteSelecionado=c;document.getElementById('clienteEscolhido').textContent=c.codigo+' — '+c.nome;document.getElementById('formRetorno').style.display='block';document.getElementById('situacaoCliente').value='';document.getElementById('detalheRetorno').value='';document.getElementById('arquivoRelatorio').value='';alterarCamposRetorno();}
     function alterarCamposRetorno(){const s=document.getElementById('situacaoCliente').value;document.getElementById('campoRelatorio').style.display=s==='Atendido'?'block':'none';document.getElementById('campoDetalhe').style.display=['Desistente','Transferido'].includes(s)?'block':'none';document.getElementById('labelDetalhe').textContent=s==='Desistente'?'Motivo da desistência':'Nome do plantonista que receberá o cliente';}
@@ -777,7 +777,7 @@
     function mostrarEnviarFotos() {
       if (!usuarioAtual) return;
       esconderTelasExtras();
-      document.getElementById('enviarFotos').style.display = 'flex';
+      document.getElementById('enviarFotos').style.setProperty('display','flex','important');
       document.getElementById('mensagemFotos').textContent = '';
       document.getElementById('mensagemFotos').className = '';
       document.getElementById('arquivosFotos').value = '';
@@ -1211,14 +1211,14 @@
     function mostrarMinhasSupervisoes() {
       if (!usuarioAtual) return;
       esconderTelasExtras();
-      document.getElementById('minhasSupervisoes').style.display = 'flex';
+      document.getElementById('minhasSupervisoes').style.setProperty('display','flex','important');
       window.scrollTo(0, 0);
     }
 
     function mostrarConferirPresenca() {
       if (!usuarioAtual) return;
       esconderTelasExtras();
-      document.getElementById('conferirPresenca').style.display = 'flex';
+      document.getElementById('conferirPresenca').style.setProperty('display','flex','important');
       const lista = document.getElementById('listaConferirPresenca');
       const mensagem = document.getElementById('mensagemConferirPresenca');
       lista.textContent = 'Carregando...';
@@ -1280,7 +1280,7 @@
 
     function mostrarRegistrarFrequencia() {
       document.getElementById('painel').style.display = 'none';
-      document.getElementById('registrarFrequencia').style.display = 'flex';
+      document.getElementById('registrarFrequencia').style.setProperty('display','flex','important');
       document.getElementById('mensagemFrequencia').textContent = '';
       document.getElementById('mensagemFrequencia').className = '';
       cancelarRegistroFrequencia(); // garante que começa na lista, não no formulário
@@ -1417,7 +1417,7 @@
 
     function mostrarRegistrarFalta() {
       document.getElementById('painel').style.display = 'none';
-      document.getElementById('registrarFalta').style.display = 'flex';
+      document.getElementById('registrarFalta').style.setProperty('display','flex','important');
       document.getElementById('mensagemFalta').textContent = '';
       document.getElementById('mensagemFalta').className = '';
       cancelarJustificativa();
