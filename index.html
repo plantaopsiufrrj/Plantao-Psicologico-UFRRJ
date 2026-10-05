@@ -1638,5 +1638,91 @@
     };
   </script>
 
+
+  <script>
+    window.mostrarRetornarCliente = function() {
+      if (typeof usuarioAtual === 'undefined' || !usuarioAtual) return;
+
+      if (typeof esconderTelasExtras === 'function') {
+        esconderTelasExtras();
+      }
+
+      const tela = document.getElementById('retornarCliente');
+      if (tela) {
+        tela.style.setProperty('display', 'flex', 'important');
+      }
+
+      const lista = document.getElementById('listaClientesPendentes');
+      const form = document.getElementById('formRetorno');
+      if (lista) lista.textContent = 'Carregando...';
+      if (form) form.style.setProperty('display', 'none', 'important');
+
+      clienteSelecionado = null;
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          if (!lista) return;
+
+          if (!resposta || !resposta.sucesso) {
+            lista.textContent = resposta && resposta.mensagem
+              ? resposta.mensagem
+              : 'Não foi possível carregar os clientes.';
+            return;
+          }
+
+          const clientes = resposta.clientes || [];
+          if (!clientes.length) {
+            lista.textContent = 'Nenhum cliente pendente no momento.';
+            return;
+          }
+
+          lista.innerHTML = '';
+          clientes.forEach(function(cliente) {
+            const card = document.createElement('div');
+            card.style.cssText =
+              'border:1px solid #d7ded9;border-radius:8px;padding:14px;margin:10px 0;text-align:left;';
+
+            const titulo = document.createElement('div');
+            titulo.style.marginBottom = '10px';
+            titulo.innerHTML =
+              '<strong>' + escapeHtml(cliente.codigo || '') + '</strong> — ' +
+              escapeHtml(cliente.nome || '');
+
+            const botao = document.createElement('button');
+            botao.className = 'btn';
+            botao.textContent = 'Selecionar';
+            botao.onclick = function() {
+              if (typeof selecionarClienteRetorno === 'function') {
+                selecionarClienteRetorno(cliente);
+              } else {
+                clienteSelecionado = cliente;
+                const escolhido = document.getElementById('clienteEscolhido');
+                if (escolhido) {
+                  escolhido.textContent =
+                    (cliente.codigo || '') + ' — ' + (cliente.nome || '');
+                }
+                if (form) form.style.setProperty('display', 'block', 'important');
+              }
+            };
+
+            card.appendChild(titulo);
+            card.appendChild(botao);
+            lista.appendChild(card);
+          });
+        })
+        .withFailureHandler(function(erro) {
+          if (lista) lista.textContent = 'Erro ao carregar os clientes pendentes.';
+          console.error(erro);
+        })
+        .listarClientesPendentes(
+          usuarioAtual.email,
+          usuarioAtual.nome,
+          usuarioAtual.perfil
+        );
+
+      window.scrollTo(0, 0);
+    };
+  </script>
+
 </body>
 </html>
