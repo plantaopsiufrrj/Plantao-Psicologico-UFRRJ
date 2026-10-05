@@ -313,9 +313,8 @@
     <div class="menu-painel">
       <button id="btnSolicitarCliente" onclick="solicitarCliente()">📋 Solicitar Cliente</button>
       <button id="btnRetornarCliente" onclick="acaoPainel('retornarCliente')">🔄 Retornar Cliente</button>
-      <button id="btnRegistrarFrequencia" onclick="mostrarRegistrarFrequencia()">🗓️ Registrar Frequência</button>
+      <button id="btnSupervisoes" onclick="mostrarMinhasSupervisoes()">🌱 Minhas Supervisões/Treinamentos</button>
       <button id="btnMeusPlantoes" onclick="mostrarMeusPlantoes()">📁 Meus Plantões</button>
-      <button onclick="mostrarRegistrarFalta()" id="btnRegistrarFalta">📝 Registrar Motivo de Falta</button>
       <button onclick="mostrarEnviarFotos()" id="btnEnviarFotos">📸 Enviar Fotos</button>
       <button id="btnMaterialEstudo" disabled title="Em breve">📚 Material de Estudo (em breve)</button>
       <button id="btnSolicitarPsicologo" disabled title="Em breve">🧑‍🤝‍🧑 Solicitar Psicólogo (em breve)</button>
@@ -340,6 +339,30 @@
       </div>
 
       <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
+    </div>
+  </div>
+
+  <!-- MINHAS SUPERVISÕES / TREINAMENTOS -->
+  <div id="minhasSupervisoes" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
+    <div class="login-box" style="max-width:480px;">
+      <h2>Minhas Supervisões/Treinamentos</h2>
+      <div class="menu-painel" style="margin-top:20px;">
+        <button onclick="mostrarRegistrarFrequencia()">🗓️ Registrar Frequência</button>
+        <button onclick="mostrarRegistrarFalta()">📝 Registrar Motivo de Falta</button>
+        <button onclick="mostrarConferirPresenca()">✅ Conferir Presença</button>
+      </div>
+      <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
+    </div>
+  </div>
+
+  <!-- CONFERIR PRESENÇA -->
+  <div id="conferirPresenca" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
+    <div class="login-box" style="max-width:680px;">
+      <h2>Conferir Presença</h2>
+      <p style="margin:8px 0 18px;color:#4a5c52;">Histórico das suas supervisões e treinamentos.</p>
+      <div id="mensagemConferirPresenca"></div>
+      <div id="listaConferirPresenca">Carregando...</div>
+      <span class="voltar" onclick="mostrarMinhasSupervisoes()">← Voltar para Minhas Supervisões/Treinamentos</span>
     </div>
   </div>
 
@@ -674,8 +697,8 @@
       const ehBolsista = perfil && perfil.toString().trim().toLowerCase() === 'bolsista';
       ['btnJardimAdmin','btnDadosPlantao','btnParticipantes'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=ehBolsista?'block':'none';});
       const inabilitado = !ehBolsista && usuarioAtual.habilitado === false;
-      const permitidosInabilitado = ['btnRegistrarFrequencia','btnRegistrarFalta','btnMaterialEstudo'];
-      const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnRegistrarFrequencia','btnMeusPlantoes','btnRegistrarFalta','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo'];
+      const permitidosInabilitado = ['btnSupervisoes','btnMaterialEstudo'];
+      const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnSupervisoes','btnMeusPlantoes','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo'];
       todosBotoes.forEach(id=>{
         const el=document.getElementById(id);
         if(el) el.style.display=(!inabilitado || permitidosInabilitado.includes(id))?'':'none';
@@ -1183,6 +1206,71 @@
           console.error(erro);
         })
         .fecharJanelaFrequencia(usuarioAtual.perfil, id);
+    }
+
+    function mostrarMinhasSupervisoes() {
+      if (!usuarioAtual) return;
+      esconderTelasExtras();
+      document.getElementById('minhasSupervisoes').style.display = 'flex';
+      window.scrollTo(0, 0);
+    }
+
+    function mostrarConferirPresenca() {
+      if (!usuarioAtual) return;
+      esconderTelasExtras();
+      document.getElementById('conferirPresenca').style.display = 'flex';
+      const lista = document.getElementById('listaConferirPresenca');
+      const mensagem = document.getElementById('mensagemConferirPresenca');
+      lista.textContent = 'Carregando...';
+      mensagem.textContent = '';
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          if (!resposta || !resposta.sucesso) {
+            lista.textContent = resposta && resposta.mensagem ? resposta.mensagem : 'Não foi possível carregar o histórico.';
+            return;
+          }
+          if (!resposta.encontros || resposta.encontros.length === 0) {
+            lista.textContent = 'Nenhuma supervisão ou treinamento cadastrado ainda.';
+            return;
+          }
+
+          lista.innerHTML = '';
+          resposta.encontros.forEach(function(item) {
+            const card = document.createElement('div');
+            card.style.cssText = 'border:1px solid #d7ded9;border-radius:8px;padding:14px;margin:12px 0;text-align:left;background:#f5f7f6;';
+
+            let situacao = item.situacao || 'Ausente';
+            let icone = situacao === 'Presente' ? '✅' :
+                        situacao === 'Falta justificada' ? '🟡' :
+                        situacao === 'Justificativa pendente' ? '🕐' : '❌';
+
+            let conteudo =
+              '<div style="font-weight:600;margin-bottom:6px;">' +
+              escapeHtml(item.data) + ' · ' + escapeHtml(item.tipoRotulo) +
+              '</div>' +
+              '<div style="margin-bottom:5px;">' + icone + ' <strong>' + escapeHtml(situacao) + '</strong></div>' +
+              '<div style="font-size:13px;color:#4a5c52;">Horário: ' +
+              escapeHtml(item.horaInicio) + '–' + escapeHtml(item.horaFim) + '</div>';
+
+            if (item.palavraDia) {
+              conteudo += '<div style="margin-top:8px;"><strong>Palavras do dia:</strong> ' +
+                escapeHtml(item.palavraDia) + '</div>';
+            }
+            if (item.motivoJustificativa) {
+              conteudo += '<div style="margin-top:8px;"><strong>Motivo da falta:</strong> ' +
+                escapeHtml(item.motivoJustificativa) + '</div>';
+            }
+
+            card.innerHTML = conteudo;
+            lista.appendChild(card);
+          });
+        })
+        .withFailureHandler(function(erro) {
+          lista.textContent = 'Erro ao carregar o histórico de presença.';
+          console.error(erro);
+        })
+        .obterHistoricoSupervisoes(usuarioAtual.email);
     }
 
     // ----------------------------------------
