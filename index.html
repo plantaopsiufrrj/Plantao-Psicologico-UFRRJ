@@ -246,6 +246,17 @@
       font-size: 14px;
       text-decoration: underline;
     }
+    .tela-agenda {min-height:90vh;align-items:flex-start;justify-content:center;padding:28px 16px;}
+    .agenda-form {display:flex;flex-direction:column;gap:12px;}
+    .agenda-form label {display:block;font-size:14px;font-weight:600;line-height:1.5;}
+    .agenda-form input,.agenda-form select,.agenda-form textarea {display:block;width:100%;margin-top:5px;margin-bottom:0;padding:10px;border:1px solid #cbd4ce;border-radius:7px;font:inherit;background:#fff;}
+    .agenda-form input[type=file] {font-size:13px;}
+    .agenda-colunas {display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+    .agenda-card {border:1px solid #d7ded9;background:#fff;border-radius:10px;padding:15px;margin:12px 0;text-align:left;}
+    .agenda-card p {margin:6px 0;line-height:1.45;}
+    .agenda-card .btn {padding:10px 14px;font-size:14px;margin:6px 8px 0 0;}
+    .agenda-fotos {display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+    .agenda-fotos img {max-width:180px;width:calc(50% - 5px);aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid #eee;}
   </style>
 </head>
 <body>
@@ -291,6 +302,12 @@
       <p>Este projeto faz parte de um Trabalho de Conclusão de Curso da UFRRJ.</p>
     </section>
 
+    <section id="plantoesPublicos" style="max-width:940px;">
+      <h2>🌿 Plantões presenciais disponíveis</h2>
+      <p style="margin-bottom:16px;color:#4a5c52;line-height:1.5;">Veja os horários e locais dos plantões presenciais divulgados pela equipe.</p>
+      <div id="listaAgendaPublica" class="lista-agenda">Carregando plantões presenciais...</div>
+      <button type="button" class="btn" onclick="carregarAgendaPublica()" style="margin-top:12px;">↻ Atualizar horários</button>
+    </section>
     <footer>Plantão Psicológico • UFRRJ</footer>
   </div>
 
@@ -323,6 +340,7 @@
     <div class="menu-painel">
       <button id="btnSolicitarCliente" onclick="solicitarCliente()">📋 Solicitar Cliente</button>
       <button id="btnRetornarCliente" onclick="acaoPainel('retornarCliente')">🔄 Retornar Cliente</button>
+      <button id="btnMarcarPresencial" onclick="mostrarAgendaPresencial()">📍 Marcar um plantão presencial</button>
       <button id="btnSupervisoes" onclick="mostrarMinhasSupervisoes()">🌱 Minhas Supervisões/Treinamentos</button>
       <button id="btnMeusPlantoes" onclick="mostrarMeusPlantoes()">📁 Meus Plantões</button>
       <button onclick="mostrarEnviarFotos()" id="btnEnviarFotos">📸 Enviar Fotos</button>
@@ -513,6 +531,7 @@
       <button class="btn" onclick="mostrarParticipantes()" style="margin-bottom:10px;">👥 Verificar participantes ativos</button>
       <button class="btn" onclick="mostrarFrequenciasAdmin()" style="margin-bottom:10px;">🗓️ Frequências dos Plantonistas</button>
       <button class="btn" onclick="mostrarVerificarPraticantes()" style="margin-bottom:10px;">📥 Verificar Praticantes</button>
+      <button class="btn" onclick="mostrarAgendaAdmin()" style="margin-bottom:10px;">📍 Verificar plantões presenciais ativos</button>
       <button class="btn" id="btnManutencao" onclick="alternarManutencao()" style="margin-bottom:20px;">🔧 Manutenção: ...</button>
 
       
@@ -639,9 +658,11 @@
       <label for="situacaoCliente">Situação</label><select id="situacaoCliente" onchange="alterarCamposRetorno()" style="width:100%;padding:10px;margin-bottom:16px;border:1px solid #ccc;border-radius:6px;"><option value="">Selecione</option><option value="Atendido">Atendido</option><option value="Desistente">Desistente</option><option value="Transferido">Transferido</option></select>
       <div id="campoRelatorio" style="display:none;"><label for="arquivoRelatorio">Relatório de atendimento (PDF, DOC ou DOCX)</label><input type="file" id="arquivoRelatorio" accept=".pdf,.doc,.docx" style="width:100%;margin:8px 0 16px;"></div>
       <div id="campoDetalhe" style="display:none;"><label id="labelDetalhe" for="detalheRetorno"></label><textarea id="detalheRetorno" rows="3" style="width:100%;padding:10px;margin:8px 0 16px;border:1px solid #ccc;border-radius:6px;"></textarea></div>
+      <div id="campoTransferencia" style="display:none;"><label for="destinatarioTransferencia">Encaminhar para</label><select id="destinatarioTransferencia" style="width:100%;padding:10px;margin:8px 0 16px;border:1px solid #ccc;border-radius:6px;"><option value="">Selecione o participante</option></select><p id="mensagemTransferencia" style="font-size:13px;margin-bottom:12px;"></p></div>
       <button class="btn" id="btnSalvarRetorno" onclick="salvarRetornoCliente()">Confirmar</button><span class="voltar" onclick="cancelarRetorno()">← Voltar à lista</span>
     </div>
     <button class="btn" style="width:100%;margin-top:18px;" onclick="mostrarPresencial()">＋ Cadastrar plantão presencial</button>
+    <button class="btn" style="width:100%;margin-top:10px;" onclick="mostrarCadastroOnline()">＋ Cadastrar plantão on-line</button>
     <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span></div></div>
   <div id="presencial"><div class="login-box" style="max-width:560px;width:100%;"><h2>Cadastrar plantão presencial</h2>
     <p style="margin:8px 0 14px;">Se houver, insira informações básicas sobre o cliente:</p>
@@ -660,6 +681,83 @@
     <label for="localPresencial">Local de atendimento</label><input id="localPresencial" type="text" required style="width:100%;padding:10px;margin:8px 0 16px;border:1px solid #ccc;border-radius:6px;">
     <label for="arquivoPresencial">Relatório de atendimento (PDF, DOC ou DOCX)</label><input type="file" id="arquivoPresencial" accept=".pdf,.doc,.docx" required style="width:100%;padding:8px;margin:8px 0 16px;">
     <div id="mensagemPresencial"></div><button class="btn" id="btnSalvarPresencial" onclick="salvarPresencial()">Cadastrar</button><span class="voltar" onclick="mostrarRetornarCliente()">← Voltar</span></div></div>
+
+  <!-- CADASTRO ON-LINE NÃO PROVENIENTE DE SOLICITAÇÃO NA PLATAFORMA -->
+  <div id="cadastroOnline" class="tela-agenda" style="display:none;">
+    <div class="login-box" style="max-width:580px;width:100%;">
+      <h2>Cadastrar plantão on-line</h2>
+      <p style="margin:12px 0 18px;line-height:1.5;">Aqui é possível cadastrar os praticantes atendidos de forma on-line que não foram solicitados por meio da plataforma. Ou seja, aqueles que você teve contato de outra forma e que não se inscreveram previamente no nosso formulário para atendimento.</p>
+      <p style="margin-bottom:14px;font-size:13px;color:#4a5c52;">Os dados básicos são opcionais. Somente o relatório de atendimento é obrigatório.</p>
+      <div class="agenda-form">
+        <label>Nome <input id="onlineNome" type="text"></label>
+        <label>Curso <input id="onlineCurso" type="text"></label>
+        <label>Idade <input id="onlineIdade" type="text"></label>
+        <label>Cidade <input id="onlineCidade" type="text"></label>
+        <label>Estado <input id="onlineEstado" type="text"></label>
+        <label>País <input id="onlinePais" type="text"></label>
+        <label>Relação com a UFRRJ <input id="onlineRelacao" type="text"></label>
+        <label>Gênero <input id="onlineGenero" type="text"></label>
+        <label>Identificação étnico-racial <input id="onlineEtnico" type="text"></label>
+        <label>Orientação afetiva/sexual <input id="onlineOrientacao" type="text"></label>
+        <label>Como soube do Plantão <input id="onlineComoSoube" type="text"></label>
+        <label>Outras informações <textarea id="onlineOutras" rows="3"></textarea></label>
+        <label>Relatório de atendimento (obrigatório, PDF/DOC/DOCX até 10 MB)
+          <input id="onlineRelatorio" type="file" accept=".pdf,.doc,.docx"></label>
+      </div>
+      <p id="mensagemOnline" role="status" style="margin:12px 0;"></p>
+      <button class="btn" id="btnSalvarOnline" onclick="salvarCadastroOnline()">Cadastrar</button>
+      <span class="voltar" onclick="mostrarRetornarCliente()">← Voltar para Retornar Cliente</span>
+    </div>
+  </div>
+
+  <!-- MARCAÇÃO E ALTERAÇÃO DE PLANTÕES PRESENCIAIS PARA DIVULGAÇÃO -->
+  <div id="agendaPresencial" class="tela-agenda" style="display:none;">
+    <div class="login-box" style="max-width:720px;width:100%;">
+      <h2 id="agendaTitulo">Marcar um plantão presencial</h2>
+      <p style="margin:12px 0 20px;line-height:1.5;">Nesta aba você pode marcar um plantão presencial que você irá realizar. Esta função serve para a divulgação do seu plantão presencial na nossa plataforma.</p>
+      <div class="agenda-form">
+        <label>Local de atendimento (obrigatório)<input id="agendaLocal" type="text" maxlength="400" placeholder="Endereço, prédio, sala ou ponto de referência"></label>
+        <div class="agenda-colunas">
+          <label>Horário de início (obrigatório)<input id="agendaInicio" type="time"></label>
+          <label>Horário de término (obrigatório)<input id="agendaFim" type="time"></label>
+        </div>
+        <label>Frequência de atendimento (obrigatória)
+          <select id="agendaFrequencia" onchange="atualizarCamposAgenda()">
+            <option value="">Selecione</option>
+            <option value="Semanal">Semanal (mesmo horário e local toda semana)</option>
+            <option value="Único">Único (somente em um dia e local específico)</option>
+          </select>
+        </label>
+        <div id="campoDiaAgenda" style="display:none;"><label>Dia da semana<input type="hidden" aria-hidden="true" style="display:none;"><select id="agendaDia">
+          <option value="">Selecione o dia</option><option>Domingo</option><option>Segunda-feira</option>
+          <option>Terça-feira</option><option>Quarta-feira</option><option>Quinta-feira</option>
+          <option>Sexta-feira</option><option>Sábado</option></select></label></div>
+        <div id="campoDataAgenda" style="display:none;"><label>Data do plantão único<input id="agendaData" type="date"></label></div>
+        <div id="campoFotosAgenda"><label>Fotos do setting de atendimento (opcional, até 4 fotos JPG/PNG de 2,5 MB cada)
+          <input id="agendaFotos" type="file" accept="image/jpeg,image/png" multiple></label>
+          <p style="font-size:13px;color:#4a5c52;">As fotos serão divulgadas publicamente. Envie somente imagens do espaço autorizadas para publicação, sem clientes ou informações confidenciais.</p>
+        </div>
+      </div>
+      <p id="mensagemAgenda" role="status" style="margin:12px 0;"></p>
+      <button class="btn" id="btnSalvarAgenda" onclick="salvarAgendaPresencial()">Publicar plantão</button>
+      <button class="btn" id="btnCancelarEdicaoAgenda" onclick="cancelarEdicaoAgenda()" style="display:none;background:#66776d;margin-top:10px;">Descartar alterações</button>
+      <h3 id="tituloMeusAgendamentos" style="margin:30px 0 14px;">Meus plantões presenciais</h3>
+      <div id="listaAgendaUsuario" class="lista-agenda">Carregando...</div>
+      <span class="voltar" id="voltarAgenda" onclick="voltarAoPainel()">← Voltar ao painel</span>
+    </div>
+  </div>
+
+  <!-- CONTROLE ADMINISTRATIVO DOS PLANTÕES MARCADOS -->
+  <div id="agendaAdmin" class="tela-agenda" style="display:none;">
+    <div class="login-box" style="max-width:760px;width:100%;">
+      <h2>Verificar plantões presenciais ativos</h2>
+      <p style="margin:12px 0 18px;color:#4a5c52;line-height:1.5;">Confira, altere ou cancele os plantões divulgados pelos participantes.</p>
+      <div id="listaAgendaAdmin" class="lista-agenda">Carregando...</div>
+      <button class="btn" onclick="carregarAgendaAdmin()" style="margin-top:12px;">↻ Atualizar lista</button>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+    </div>
+  </div>
+
   <script>
 
     // ============================================================
@@ -796,7 +894,7 @@
       ['btnJardimAdmin','btnDadosPlantao','btnParticipantes'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=ehBolsista?'block':'none';});
       const inabilitado = !ehBolsista && usuarioAtual.habilitado === false;
       const permitidosInabilitado = ['btnSupervisoes','btnMaterialEstudo'];
-      const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnSupervisoes','btnMeusPlantoes','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo'];
+      const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnMarcarPresencial','btnSupervisoes','btnMeusPlantoes','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo'];
       todosBotoes.forEach(id=>{
         const el=document.getElementById(id);
         if(el) el.style.display=(!inabilitado || permitidosInabilitado.includes(id))?'':'none';
@@ -946,7 +1044,7 @@
     function baixarParticipantes(tipo){const lista=participantesCache.filter(p=>p.ativo&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));const linhas=[['Nome','E-mail','Telefone','Perfil','Ativo','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],...lista.map(p=>[p.nome,p.email,p.telefone,p.perfil,'Sim',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='participantes-'+tipo.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(a.href);}
 
     function esconderTelasExtras() {
-      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin'].forEach(function(id) {
+      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin','cadastroOnline','agendaPresencial','agendaAdmin'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.style.setProperty('display', 'none', 'important');
       });
@@ -962,16 +1060,35 @@
       document.getElementById('situacaoCliente').value = '';
       document.getElementById('detalheRetorno').value = '';
       document.getElementById('arquivoRelatorio').value = '';
+      document.getElementById('destinatarioTransferencia').innerHTML = '<option value="">Selecione o participante</option>';
       alterarCamposRetorno();
     }
 
     function alterarCamposRetorno() {
-      const situacao = document.getElementById('situacaoCliente').value;
-      document.getElementById('campoRelatorio').style.display = situacao === 'Atendido' ? 'block' : 'none';
-      document.getElementById('campoDetalhe').style.display = ['Desistente', 'Transferido'].includes(situacao) ? 'block' : 'none';
-      document.getElementById('labelDetalhe').textContent = situacao === 'Desistente'
-        ? 'Motivo da desistência'
-        : 'Nome do plantonista que receberá o cliente';
+      const situacao=document.getElementById('situacaoCliente').value;
+      document.getElementById('campoRelatorio').style.display=situacao==='Atendido'?'block':'none';
+      document.getElementById('campoDetalhe').style.display=situacao==='Desistente'?'block':'none';
+      document.getElementById('campoTransferencia').style.display=situacao==='Transferido'?'block':'none';
+      document.getElementById('labelDetalhe').textContent='Motivo da desistência';
+      if(situacao==='Transferido')carregarDestinatariosTransferencia();
+    }
+
+    function carregarDestinatariosTransferencia() {
+      if(!usuarioAtual)return;
+      const sel=document.getElementById('destinatarioTransferencia');
+      const msg=document.getElementById('mensagemTransferencia');
+      sel.innerHTML='<option value="">Carregando participantes...</option>';
+      msg.textContent='';
+      google.script.run.withSuccessHandler(r=>{
+        sel.innerHTML='<option value="">Selecione o participante</option>';
+        if(!r||!r.sucesso){msg.textContent=(r&&r.mensagem)||'Não foi possível carregar os participantes.';return;}
+        (r.destinatarios||[]).forEach(p=>{
+          const op=document.createElement('option');op.value=p.email;
+          op.textContent=p.nome+' ('+(p.perfil==='treinando'?'Treinando':'Plantonista')+')';sel.appendChild(op);
+        });
+        if(!(r.destinatarios||[]).length)msg.textContent='Não há destinatários disponíveis.';
+      }).withFailureHandler(e=>{sel.innerHTML='<option value="">Erro ao carregar</option>';msg.textContent='Falha de conexão.';console.error(e);})
+      .listarDestinatariosTransferencia(usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     function cancelarRetorno() {
@@ -990,7 +1107,9 @@
         return;
       }
 
-      const detalhe = document.getElementById('detalheRetorno').value.trim();
+      const detalhe = situacao === 'Transferido'
+        ? document.getElementById('destinatarioTransferencia').value
+        : document.getElementById('detalheRetorno').value.trim();
       if (situacao !== 'Atendido' && !detalhe) {
         alert('Preencha o campo solicitado.');
         return;
@@ -1021,7 +1140,8 @@
             clienteSelecionado.codigo,
             situacao,
             detalhe,
-            arquivo
+            arquivo,
+            usuarioAtual.tokenFreq
           );
       };
 
@@ -1308,6 +1428,13 @@
             const titulo = document.createElement('strong');
             titulo.textContent = j.nome + ' · ' + j.data;
             card.appendChild(titulo);
+
+            const janelaLabel=document.createElement('p');
+            janelaLabel.style.cssText='margin:8px 0;padding:8px;background:#eef5f0;border-radius:5px;line-height:1.5;';
+            janelaLabel.textContent=j.janela
+              ? 'Janela: '+rotuloTipoJanela(j.janela.tipo)+' · '+j.janela.data+' · '+j.janela.inicio+'–'+j.janela.fim
+              : 'Janela vinculada não encontrada no cadastro atual';
+            card.appendChild(janelaLabel);
 
             const email = document.createElement('p');
             email.textContent = j.email;
@@ -2253,7 +2380,7 @@
             titulo.style.marginBottom = '10px';
             titulo.innerHTML =
               '<strong>' + escapeHtml(cliente.codigo || '') + '</strong> — ' +
-              escapeHtml(cliente.nome || '');
+              escapeHtml(cliente.nome || '') + (cliente.transferidoPor ? '<p style="font-size:13px;color:#607569;margin-top:6px;">Transferido por: '+escapeHtml(cliente.transferidoPor)+'</p>' : '');
 
             const botao = document.createElement('button');
             botao.className = 'btn';
@@ -2274,11 +2401,193 @@
         .listarClientesPendentes(
           usuarioAtual.email,
           usuarioAtual.nome,
-          usuarioAtual.perfil
+          usuarioAtual.perfil,
+          usuarioAtual.tokenFreq
         );
 
       window.scrollTo(0, 0);
     };
+
+    // =========================================================
+    // CADASTRO DE PLANTÕES ON-LINE E AGENDA DE PLANTÕES PRESENCIAIS
+    // =========================================================
+    function mostrarCadastroOnline() {
+      if(!usuarioAtual)return;
+      esconderTelasExtras();document.getElementById('cadastroOnline').style.setProperty('display','flex','important');
+      document.getElementById('mensagemOnline').textContent='';window.scrollTo(0,0);
+    }
+    function lerArquivoPortal_(arquivo) {
+      return new Promise((resolve,reject)=>{
+        const reader=new FileReader();reader.onload=()=>resolve({nome:arquivo.name,mimeType:arquivo.type,base64:reader.result});
+        reader.onerror=()=>reject(new Error('Erro ao carregar arquivo '+arquivo.name));reader.readAsDataURL(arquivo);
+      });
+    }
+    async function salvarCadastroOnline() {
+      if(!usuarioAtual)return;
+      const file=document.getElementById('onlineRelatorio').files[0],msg=document.getElementById('mensagemOnline');
+      if(!file){msg.textContent='Anexe o relatório de atendimento.';return;}
+      if(file.size>10*1024*1024){msg.textContent='O relatório deve ter no máximo 10 MB.';return;}
+      const dados={};['nome','curso','idade','cidade','estado','pais','relacao','genero','etnico','orientacao','comoSoube','outras']
+        .forEach(k=>{const id='online'+k[0].toUpperCase()+k.slice(1);dados[k]=document.getElementById(id).value.trim();});
+      const btn=document.getElementById('btnSalvarOnline');btn.disabled=true;msg.textContent='Enviando...';
+      try {
+        const arquivo=await lerArquivoPortal_(file);
+        google.script.run.withSuccessHandler(r=>{
+          btn.disabled=false;msg.textContent=(r&&r.mensagem)||'Erro ao cadastrar.';
+          if(r&&r.sucesso){document.querySelectorAll('#cadastroOnline input,#cadastroOnline textarea').forEach(el=>el.value='');}
+        }).withFailureHandler(e=>{btn.disabled=false;msg.textContent='Falha ao cadastrar.';console.error(e);})
+          .cadastrarPlantaoOnline(usuarioAtual.email,usuarioAtual.nome,usuarioAtual.perfil,dados,arquivo,usuarioAtual.tokenFreq);
+      }catch(e){btn.disabled=false;msg.textContent=e.message;}
+    }
+
+    let agendaEdicaoId='',agendaEditandoComoAdmin=false,agendaCacheUsuario=[],agendaCacheAdmin=[];
+    function atualizarCamposAgenda(){
+      const f=document.getElementById('agendaFrequencia').value;
+      document.getElementById('campoDiaAgenda').style.display=f==='Semanal'?'block':'none';
+      document.getElementById('campoDataAgenda').style.display=f==='Único'?'block':'none';
+    }
+    function resetarFormAgenda(){
+      agendaEdicaoId='';document.getElementById('agendaLocal').value='';
+      ['agendaInicio','agendaFim','agendaFrequencia','agendaDia','agendaData','agendaFotos'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('btnSalvarAgenda').textContent='Publicar plantão';
+      document.getElementById('btnCancelarEdicaoAgenda').style.display='none';
+      document.getElementById('campoFotosAgenda').style.display='block';
+      document.getElementById('agendaTitulo').textContent='Marcar um plantão presencial';
+      document.getElementById('mensagemAgenda').textContent='';atualizarCamposAgenda();
+    }
+    function mostrarAgendaPresencial(){
+      if(!usuarioAtual)return;
+      agendaEditandoComoAdmin=false;resetarFormAgenda();
+      esconderTelasExtras();document.getElementById('agendaPresencial').style.setProperty('display','flex','important');
+      document.getElementById('tituloMeusAgendamentos').style.display='block';
+      document.getElementById('listaAgendaUsuario').style.display='block';
+      document.getElementById('voltarAgenda').textContent='← Voltar ao painel';
+      document.getElementById('voltarAgenda').onclick=voltarAoPainel;
+      carregarAgendaUsuario();window.scrollTo(0,0);
+    }
+    function mostrarAgendaAdmin(){
+      if(!usuarioAtual||String(usuarioAtual.perfil).toLowerCase()!=='bolsista')return;
+      esconderTelasExtras();document.getElementById('agendaAdmin').style.setProperty('display','flex','important');
+      carregarAgendaAdmin();window.scrollTo(0,0);
+    }
+    function carregarAgendaUsuario(){
+      const el=document.getElementById('listaAgendaUsuario');el.textContent='Carregando...';
+      google.script.run.withSuccessHandler(r=>{
+        if(!r||!r.sucesso){el.textContent=(r&&r.mensagem)||'Falha ao carregar.';return;}
+        agendaCacheUsuario=r.plantoes||[];renderizarAgenda_(el,agendaCacheUsuario,false);
+      }).withFailureHandler(e=>{el.textContent='Erro ao carregar plantões.';console.error(e);})
+      .portalListarAgendaPresencial(usuarioAtual.email,usuarioAtual.tokenFreq,false);
+    }
+    function carregarAgendaAdmin(){
+      const el=document.getElementById('listaAgendaAdmin');el.textContent='Carregando...';
+      google.script.run.withSuccessHandler(r=>{
+        if(!r||!r.sucesso){el.textContent=(r&&r.mensagem)||'Falha ao carregar.';return;}
+        agendaCacheAdmin=r.plantoes||[];renderizarAgenda_(el,agendaCacheAdmin,true);
+      }).withFailureHandler(e=>{el.textContent='Erro ao carregar plantões.';console.error(e);})
+      .portalListarAgendaPresencial(usuarioAtual.email,usuarioAtual.tokenFreq,true);
+    }
+    function textoAgenda_(p){
+      const d=p.frequencia==='Único'?('Único · '+String(p.data||'').split('-').reverse().join('/'))
+        :('Semanal · '+p.dia);
+      return d+' · '+p.inicio+' às '+p.fim;
+    }
+    function montarCartaoAgenda_(p,editar,admin){
+      const card=document.createElement('article');card.className='agenda-card';
+      const nome=document.createElement('strong');nome.textContent=p.nome||'Plantonista';card.appendChild(nome);
+      const local=document.createElement('p');local.textContent='📍 '+p.local;card.appendChild(local);
+      const data=document.createElement('p');data.textContent='🗓️ '+textoAgenda_(p);card.appendChild(data);
+      if(p.status&&p.status!=='Ativo'){
+        const status=document.createElement('p');status.textContent='Situação: '+p.status;card.appendChild(status);
+      }
+      if((p.fotos||[]).length){
+        const gal=document.createElement('div');gal.className='agenda-fotos';
+        p.fotos.forEach(url=>{const img=document.createElement('img');img.src=url;img.alt='Foto do espaço de atendimento';img.loading='lazy';gal.appendChild(img);});
+        card.appendChild(gal);
+      }
+      if(editar&&p.status==='Ativo'){
+        const alterar=document.createElement('button');alterar.className='btn';alterar.textContent='Alterar plantão';
+        alterar.onclick=()=>editarAgendaPresencial(p,admin);card.appendChild(alterar);
+        const cancelar=document.createElement('button');cancelar.className='btn';cancelar.textContent='Cancelar plantão';
+        cancelar.style.background='#a94442';cancelar.onclick=()=>cancelarAgendaPortal(p.id,admin);card.appendChild(cancelar);
+      }
+      return card;
+    }
+    function renderizarAgenda_(el,items,admin){
+      el.innerHTML='';
+      if(!items.length){el.textContent=admin?'Não há plantões presenciais ativos.':'Você ainda não marcou plantões.';return;}
+      items.forEach(p=>el.appendChild(montarCartaoAgenda_(p,true,admin)));
+    }
+    function editarAgendaPresencial(p,admin){
+      agendaEditandoComoAdmin=!!admin;
+      resetarFormAgenda();agendaEdicaoId=p.id;
+      esconderTelasExtras();document.getElementById('agendaPresencial').style.setProperty('display','flex','important');
+      document.getElementById('agendaTitulo').textContent='Alterar plantão de '+p.nome;
+      document.getElementById('agendaLocal').value=p.local||'';
+      document.getElementById('agendaInicio').value=p.inicio||'';
+      document.getElementById('agendaFim').value=p.fim||'';
+      document.getElementById('agendaFrequencia').value=p.frequencia||'';
+      document.getElementById('agendaDia').value=p.dia||'';
+      document.getElementById('agendaData').value=p.data||'';
+      document.getElementById('btnSalvarAgenda').textContent='Salvar alterações';
+      document.getElementById('btnCancelarEdicaoAgenda').style.display='inline-block';
+      document.getElementById('campoFotosAgenda').style.display='none';
+      document.getElementById('tituloMeusAgendamentos').style.display=admin?'none':'block';
+      document.getElementById('listaAgendaUsuario').style.display=admin?'none':'block';
+      document.getElementById('voltarAgenda').textContent=admin?'← Voltar para verificação administrativa':'← Voltar ao painel';
+      document.getElementById('voltarAgenda').onclick=admin?mostrarAgendaAdmin:voltarAoPainel;
+      atualizarCamposAgenda();window.scrollTo(0,0);
+    }
+    function cancelarEdicaoAgenda(){
+      if(agendaEditandoComoAdmin)mostrarAgendaAdmin();else mostrarAgendaPresencial();
+    }
+    async function salvarAgendaPresencial(){
+      if(!usuarioAtual)return;
+      const msg=document.getElementById('mensagemAgenda');
+      const dados={local:document.getElementById('agendaLocal').value.trim(),
+        inicio:document.getElementById('agendaInicio').value,fim:document.getElementById('agendaFim').value,
+        frequencia:document.getElementById('agendaFrequencia').value,
+        dia:document.getElementById('agendaDia').value,data:document.getElementById('agendaData').value};
+      if(!dados.local||!dados.inicio||!dados.fim||!dados.frequencia||
+        (dados.frequencia==='Semanal'&&!dados.dia)||(dados.frequencia==='Único'&&!dados.data)){
+        msg.textContent='Preencha local, horários e frequência, incluindo dia/data do atendimento.';return;
+      }
+      const arquivos=agendaEdicaoId?[]:Array.from(document.getElementById('agendaFotos').files);
+      if(arquivos.length>4||arquivos.some(f=>f.size>2500000||!['image/jpeg','image/png'].includes(f.type))){
+        msg.textContent='Selecione no máximo 4 fotos JPG/PNG, de até 2,5 MB cada.';return;
+      }
+      const botao=document.getElementById('btnSalvarAgenda');botao.disabled=true;msg.textContent='Salvando...';
+      const atualId=agendaEdicaoId, modoAdmin=agendaEditandoComoAdmin;
+      try{
+        const fotos=await Promise.all(arquivos.map(lerArquivoPortal_));
+        google.script.run.withSuccessHandler(r=>{
+          botao.disabled=false;msg.textContent=(r&&r.mensagem)||'Não foi possível salvar.';
+          if(r&&r.sucesso){carregarAgendaPublica();if(modoAdmin)mostrarAgendaAdmin();else mostrarAgendaPresencial();}
+        }).withFailureHandler(e=>{botao.disabled=false;msg.textContent='Erro ao salvar o plantão.';console.error(e);})
+        .portalSalvarAgendaPresencial(usuarioAtual.email,usuarioAtual.tokenFreq,atualId,dados,fotos);
+      }catch(e){botao.disabled=false;msg.textContent=e.message;}
+    }
+    function cancelarAgendaPortal(id,admin){
+      if(!confirm('Cancelar este plantão? Ele deixará de aparecer na página inicial.'))return;
+      google.script.run.withSuccessHandler(r=>{
+        alert((r&&r.mensagem)||'Erro ao cancelar.');
+        if(r&&r.sucesso){carregarAgendaPublica();if(admin)carregarAgendaAdmin();else carregarAgendaUsuario();}
+      }).withFailureHandler(e=>{alert('Erro ao cancelar plantão.');console.error(e);})
+      .portalCancelarAgendaPresencial(usuarioAtual.email,usuarioAtual.tokenFreq,id);
+    }
+    function carregarAgendaPublica(){
+      const el=document.getElementById('listaAgendaPublica');if(!el)return;
+      el.textContent='Carregando plantões...';
+      google.script.run.withSuccessHandler(r=>{
+        el.innerHTML='';if(!r||!r.sucesso){el.textContent='Não foi possível carregar a agenda neste momento.';return;}
+        if(!(r.plantoes||[]).length){el.textContent='Nenhum plantão presencial divulgado no momento.';return;}
+        r.plantoes.forEach(p=>el.appendChild(montarCartaoAgenda_(p,false,false)));
+      }).withFailureHandler(e=>{el.textContent='Não foi possível carregar a agenda.';console.error(e);})
+      .portalListarAgendaPublica();
+    }
+    // A página principal é pública. Carregar a agenda sem exigir login.
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',carregarAgendaPublica);
+    else carregarAgendaPublica();
+
   </script>
 
   <script>
