@@ -1694,13 +1694,31 @@
               ' · <span class="' + statusClasse + '">' + j.status + '</span>';
 
             item.appendChild(info);
+            item.style.flexWrap = 'wrap';
+            item.style.gap = '8px';
+
+            const acoes = document.createElement('div');
+            acoes.style.cssText = 'display:flex; gap:6px; flex-wrap:wrap;';
 
             if (j.status === 'Aberta') {
               const btnFechar = document.createElement('button');
               btnFechar.textContent = 'Fechar';
               btnFechar.onclick = function() { fecharJanela(j.id); };
-              item.appendChild(btnFechar);
+              acoes.appendChild(btnFechar);
             }
+
+            const btnPresenca = document.createElement('button');
+            btnPresenca.textContent = 'Atribuir presença a todos';
+            btnPresenca.onclick = function() { atribuirPresencaTodos(j); };
+            acoes.appendChild(btnPresenca);
+
+            const btnDeletar = document.createElement('button');
+            btnDeletar.textContent = 'Deletar janela';
+            btnDeletar.style.color = '#c0392b';
+            btnDeletar.onclick = function() { deletarJanela(j); };
+            acoes.appendChild(btnDeletar);
+
+            item.appendChild(acoes);
 
             lista.appendChild(item);
           });
@@ -1710,6 +1728,53 @@
           console.error(erro);
         })
         .listarJanelasFrequencia(usuarioAtual.perfil);
+    }
+
+    function descricaoJanela_(j) {
+      return j.data + ' · ' + j.horaInicio + '–' + j.horaFim + ' · ' + rotuloTipoJanela(j.tipo);
+    }
+
+    function executarAcaoJanela_(botaoTexto, chamar) {
+      const mensagem = document.getElementById('mensagemAdmin');
+      mensagem.textContent = botaoTexto;
+      mensagem.className = '';
+
+      chamar(
+        function(resposta) {
+          mensagem.textContent = resposta.mensagem;
+          mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
+          carregarJanelas();
+        },
+        function(erro) {
+          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
+          mensagem.className = 'erro';
+          console.error(erro);
+        }
+      );
+    }
+
+    function atribuirPresencaTodos(j) {
+      if (!confirm('Atribuir presença a TODOS os envolvidos nesta janela?\n\n' + descricaoJanela_(j) +
+          '\n\nQuem estiver com falta passa a ficar com presença. Quem já tem presença ou falta justificada não muda.')) return;
+
+      executarAcaoJanela_('Atribuindo presença...', function(ok, falha) {
+        google.script.run
+          .withSuccessHandler(ok)
+          .withFailureHandler(falha)
+          .atribuirPresencaATodos(usuarioAtual.perfil, j.id);
+      });
+    }
+
+    function deletarJanela(j) {
+      if (!confirm('Deletar esta janela?\n\n' + descricaoJanela_(j) +
+          '\n\nIsso apaga também todos os registros de presença/falta e as justificativas ligados a ela. Não dá para desfazer.')) return;
+
+      executarAcaoJanela_('Apagando janela...', function(ok, falha) {
+        google.script.run
+          .withSuccessHandler(ok)
+          .withFailureHandler(falha)
+          .deletarJanelaFrequencia(usuarioAtual.perfil, j.id);
+      });
     }
 
     function fecharJanela(id) {
