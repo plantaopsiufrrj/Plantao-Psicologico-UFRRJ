@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="plantao-build" content="2026-10-05-fix-nav-2">
+  <meta name="plantao-build" content="2026-10-13-frequencia-nomes-v1">
   <title>Plantão Psicológico</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -538,6 +538,7 @@
     <div class="login-box" style="max-width:560px;">
       <h2>Janelas de frequência</h2>
       <div id="mensagemAdmin"></div>
+      <p style="font-size:13px;line-height:1.5;color:#4a5c52;margin:8px 0 18px;">O registro fecha automaticamente após o horário. As faltas são atribuídas apenas aos participantes convocados e sujeitos à obrigação de presença. <strong>Deletar janela</strong> apaga também seus registros e justificativas.</p>
       <h3 style="font-size:15px; margin-bottom:10px;">Abrir nova janela de frequência</h3>
 
       <label for="janelaData">Data</label>
@@ -1471,7 +1472,7 @@
           console.error(erro);
           aoTerminar(null, 'Erro ao carregar as presenças. Tente novamente.');
         })
-        .obterPresencasAdmin(usuarioAtual.email);
+        .obterPresencasAdmin(usuarioAtual.email, usuarioAtual.tokenFreq);
     }
 
     function cartaoPessoaPresenca_(p, textoExtra, origem) {
@@ -1664,7 +1665,7 @@
           mensagem.className = 'erro';
           console.error(erro);
         })
-        .abrirJanelaFrequencia(usuarioAtual.perfil, data, inicio, fim, tipo);
+        .abrirJanelaFrequencia(usuarioAtual.perfil, data, inicio, fim, tipo, usuarioAtual.email, usuarioAtual.tokenFreq);
     }
 
     function carregarJanelas() {
@@ -1694,32 +1695,27 @@
               ' · <span class="' + statusClasse + '">' + j.status + '</span>';
 
             item.appendChild(info);
-            item.style.flexWrap = 'wrap';
-            item.style.gap = '8px';
 
             const acoes = document.createElement('div');
-            acoes.style.cssText = 'display:flex; gap:6px; flex-wrap:wrap;';
-
+            acoes.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-left:10px;';
             if (j.status === 'Aberta') {
               const btnFechar = document.createElement('button');
               btnFechar.textContent = 'Fechar';
+              btnFechar.title = 'Se o encontro ainda não terminou, cancela a janela sem gerar faltas.';
               btnFechar.onclick = function() { fecharJanela(j.id); };
               acoes.appendChild(btnFechar);
             }
-
             const btnPresenca = document.createElement('button');
             btnPresenca.textContent = 'Atribuir presença a todos';
-            btnPresenca.onclick = function() { atribuirPresencaTodos(j); };
+            btnPresenca.disabled = j.status === 'Cancelada' || j.convocados === null;
+            btnPresenca.onclick = function() { atribuirPresencaTodosJanela(j); };
             acoes.appendChild(btnPresenca);
-
             const btnDeletar = document.createElement('button');
             btnDeletar.textContent = 'Deletar janela';
-            btnDeletar.style.color = '#c0392b';
-            btnDeletar.onclick = function() { deletarJanela(j); };
+            btnDeletar.style.color = '#b42318';
+            btnDeletar.onclick = function() { deletarJanelaAdmin(j); };
             acoes.appendChild(btnDeletar);
-
             item.appendChild(acoes);
-
             lista.appendChild(item);
           });
         })
@@ -1727,65 +1723,39 @@
           lista.textContent = 'Erro ao carregar as janelas.';
           console.error(erro);
         })
-        .listarJanelasFrequencia(usuarioAtual.perfil);
+        .listarJanelasFrequencia(usuarioAtual.perfil, usuarioAtual.email, usuarioAtual.tokenFreq);
     }
 
-    function descricaoJanela_(j) {
-      return j.data + ' · ' + j.horaInicio + '–' + j.horaFim + ' · ' + rotuloTipoJanela(j.tipo);
-    }
-
-    function executarAcaoJanela_(botaoTexto, chamar) {
-      const mensagem = document.getElementById('mensagemAdmin');
-      mensagem.textContent = botaoTexto;
-      mensagem.className = '';
-
-      chamar(
-        function(resposta) {
-          mensagem.textContent = resposta.mensagem;
-          mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
-          carregarJanelas();
-        },
-        function(erro) {
-          mensagem.textContent = 'Erro ao conectar. Tente novamente.';
-          mensagem.className = 'erro';
-          console.error(erro);
-        }
-      );
-    }
-
-    function atribuirPresencaTodos(j) {
-      if (!confirm('Atribuir presença a TODOS os envolvidos nesta janela?\n\n' + descricaoJanela_(j) +
-          '\n\nQuem estiver com falta passa a ficar com presença. Quem já tem presença ou falta justificada não muda.')) return;
-
-      executarAcaoJanela_('Atribuindo presença...', function(ok, falha) {
-        google.script.run
-          .withSuccessHandler(ok)
-          .withFailureHandler(falha)
-          .atribuirPresencaATodos(usuarioAtual.perfil, j.id);
-      });
-    }
-
-    function deletarJanela(j) {
-      if (!confirm('Deletar esta janela?\n\n' + descricaoJanela_(j) +
-          '\n\nIsso apaga também todos os registros de presença/falta e as justificativas ligados a ela. Não dá para desfazer.')) return;
-
-      executarAcaoJanela_('Apagando janela...', function(ok, falha) {
-        google.script.run
-          .withSuccessHandler(ok)
-          .withFailureHandler(falha)
-          .deletarJanelaFrequencia(usuarioAtual.perfil, j.id);
-      });
+    function mensagemAcaoJanela_(r) {
+      const el = document.getElementById('mensagemAdmin');
+      el.textContent = r && r.mensagem ? r.mensagem : 'Não foi possível executar esta operação.';
+      el.className = r && r.sucesso ? 'sucesso' : 'erro';
+      if (r && r.sucesso) carregarJanelas();
     }
 
     function fecharJanela(id) {
+      if (!confirm('Fechar agora? Se a janela ainda não terminou, ela será CANCELADA e não gerará faltas.')) return;
       google.script.run
-        .withSuccessHandler(function(resposta) {
-          carregarJanelas();
-        })
-        .withFailureHandler(function(erro) {
-          console.error(erro);
-        })
-        .fecharJanelaFrequencia(usuarioAtual.perfil, id);
+        .withSuccessHandler(mensagemAcaoJanela_)
+        .withFailureHandler(e => mensagemAcaoJanela_({sucesso:false,mensagem:String(e)}))
+        .fecharJanelaFrequencia(usuarioAtual.perfil, id, usuarioAtual.email, usuarioAtual.tokenFreq);
+    }
+
+    function atribuirPresencaTodosJanela(j) {
+      if (!confirm('Atribuir presença a TODOS os ' + j.convocados + ' participantes convocados em ' + j.data + '? Faltas serão substituídas por presença, mantendo auditoria.')) return;
+      google.script.run
+        .withSuccessHandler(mensagemAcaoJanela_)
+        .withFailureHandler(e => mensagemAcaoJanela_({sucesso:false,mensagem:String(e)}))
+        .atribuirPresencaTodos(usuarioAtual.email, usuarioAtual.tokenFreq, j.id);
+    }
+
+    function deletarJanelaAdmin(j) {
+      if (!confirm('Deletar definitivamente a janela de ' + j.data + '? Os registros de frequência e justificativas ligados a ela também serão apagados.')) return;
+      if (!confirm('CONFIRMAÇÃO FINAL: esta exclusão é permanente e altera o histórico de frequência. Deseja prosseguir?')) return;
+      google.script.run
+        .withSuccessHandler(mensagemAcaoJanela_)
+        .withFailureHandler(e => mensagemAcaoJanela_({sucesso:false,mensagem:String(e)}))
+        .deletarJanelaFrequencia(usuarioAtual.email, usuarioAtual.tokenFreq, j.id);
     }
 
     function mostrarMinhasSupervisoes() {
@@ -1908,7 +1878,7 @@
           lista.textContent = 'Erro ao carregar as janelas.';
           console.error(erro);
         })
-        .listarJanelasAbertas();
+        .listarJanelasAbertas(usuarioAtual.email);
     }
 
     let tipoJanelaSelecionada = null;
@@ -2194,6 +2164,7 @@
           if (resposta.sucesso) {
             mensagem.textContent = '';
             mostrarPainel(resposta.nome, resposta.email, resposta.perfil, resposta.habilitado, resposta.ativo);
+            usuarioAtual.tokenFreq = resposta.tokenFreq || '';
           } else {
             mensagem.textContent = resposta.mensagem;
             mensagem.className = 'erro';
