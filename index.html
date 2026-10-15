@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="plantao-build" content="2026-10-13-frequencia-nomes-v1">
+  <meta name="plantao-build" content="2026-10-15-fix-escape-html">
   <title>Plantão Psicológico</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -880,6 +880,17 @@
   </div>
 
   <script>
+
+    // Funções globais para inserir dados de planilhas em conteúdo HTML com segurança.
+    // Usadas no retorno de clientes e na listagem de participantes.
+    function escapeHtml(valor) {
+      return String(valor == null ? '' : valor).replace(/[&<>"']/g, function(caractere) {
+        return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[caractere];
+      });
+    }
+    function escapeAttr(valor) {
+      return escapeHtml(valor);
+    }
 
     // ============================================================
     // COMPATIBILIDADE: APPS SCRIPT + GITHUB PAGES
@@ -2906,7 +2917,7 @@
   </script>
 
   <script>
-    window.PLANTAO_BUILD = '2026-10-05-fix-nav-2';
+    window.PLANTAO_BUILD = '2026-10-15-fix-escape-html';
     console.info('[Plantão] build:', window.PLANTAO_BUILD);
   </script>
 
