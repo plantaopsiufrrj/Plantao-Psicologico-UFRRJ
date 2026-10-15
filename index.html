@@ -267,6 +267,15 @@
     .foto-ampliada img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 0 40px #0007;}
     .foto-ampliada button{position:absolute;right:16px;top:12px;color:#fff;background:transparent;border:1px solid #fff8;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:20px;}
     .foto-ampliada button:focus-visible,.agenda-fotos img:focus-visible{outline:3px solid #72ce9f;outline-offset:4px;}
+    .ig-link {display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border:1px solid #a0b7a9;border-radius:10px;background:#fff;color:#265d43;text-decoration:none;font-weight:700;margin:12px 0;}
+    .ig-link:hover {background:#eff8f2;}
+    .experiencias-form {text-align:left;max-width:720px;margin:18px auto;background:#f7faf8;padding:20px;border:1px solid #dae8df;border-radius:12px;}
+    .experiencias-form input[type="text"],.experiencias-form textarea {width:100%;box-sizing:border-box;padding:11px;margin:7px 0 14px;border:1px solid #bdcfc2;border-radius:7px;font:inherit;}
+    .experiencias-form label {display:block;font-weight:600;}
+    .experiencias-check {display:flex!important;gap:10px;align-items:flex-start;font-weight:normal!important;line-height:1.5;margin:10px 0 18px;}
+    .experiencias-check input {flex:0 0 auto;margin-top:5px;}
+    .relato-publicado {border:1px solid #dbe8df;background:#fff;padding:17px;border-radius:10px;margin:10px auto;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;}
+    .relato-publicado strong {display:block;margin-bottom:6px;color:#265d43;}
   </style>
 </head>
 <body>
@@ -284,7 +293,7 @@
         <a href="#sobre">Sobre</a>
         <a href="#comofunciona">Como funciona</a>
         <a href="#projeto">Projeto</a>
-        <a href="#" onclick="mostrarLogin(); return false;">Área do Plantonista</a>
+        <a href="#" onclick="mostrarLogin(); return false;">Floresta dos Plantonistas</a>
       </nav>
     </header>
 
@@ -322,13 +331,38 @@
       <div id="listaAgendaPublica" class="lista-agenda">Carregando plantões presenciais...</div>
       <button type="button" class="btn" onclick="carregarAgendaPublica()" style="margin-top:12px;">↻ Atualizar horários</button>
     </section>
+
+    <section id="instagramPlantao" style="max-width:940px;">
+      <h2>🌿 Acompanhe o Plantão</h2>
+      <a href="https://www.instagram.com/plantaopsiufrrj/" target="_blank" rel="noopener noreferrer" class="ig-link" aria-label="Conheça a nossa página do Instagram">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        <span>Conheça a nossa página do Instagram ↗</span>
+      </a>
+      <p>Compartilhamos informações sobre o Plantão Psicológico, ações do projeto, eventos, reflexões sobre acolhimento e novidades de nossos atendimentos.</p>
+    </section>
+    <section id="experienciasPlantao" style="max-width:940px;">
+      <h2>💬 Compartilhe sua experiência!</h2>
+      <p>Você já foi atendido(a) pelo Plantão? Conte como foi sua experiência. Sua mensagem ajuda nossa equipe a refletir e aprimorar o acolhimento. O nome é opcional e o envio é privado por padrão.</p>
+      <div class="experiencias-form">
+        <label for="expNome">Seu nome (opcional)</label>
+        <input id="expNome" type="text" maxlength="100" placeholder="Como gostaria de ser identificado(a)?">
+        <label for="expMensagem">Sua mensagem</label>
+        <textarea id="expMensagem" minlength="20" maxlength="2000" rows="5" placeholder="Conte, em suas palavras, como foi sua experiência..." required></textarea>
+        <p style="font-size:13px;color:#54675a;">Evite incluir nomes de outras pessoas, detalhes clínicos ou informações íntimas que não deseja compartilhar. A mensagem será guardada para consulta interna.</p>
+        <label class="experiencias-check"><input type="checkbox" id="expAutorizo"> Autorizo que minha mensagem seja exibida na página pública do Plantão, após revisão da equipe. Caso informe meu nome, ele também poderá aparecer junto do relato.</label>
+        <button class="btn" id="btnEnviarExperiencia" onclick="enviarExperienciaPublica()">Enviar experiência</button>
+        <p id="mensagemExperiencia" role="status" aria-live="polite"></p>
+      </div>
+      <div id="experienciasPublicadas" style="margin-top:24px;"></div>
+    </section>
     <footer>Plantão Psicológico • UFRRJ</footer>
   </div>
 
   <!-- TELA DE LOGIN -->
   <div id="login">
     <div class="login-box">
-      <h2>Área do Plantonista</h2>
+      <h2>Floresta dos Plantonistas</h2>
+      <p style="margin:4px 0 18px;color:#4a5c52;line-height:1.6;">Um espaço reservado para quem cultiva a escuta no Plantão. Acesse suas atividades, supervisões, materiais e registros do projeto.</p>
 
       <div id="mensagemLogin"></div>
 
@@ -570,10 +604,11 @@
     <div class="login-box" style="max-width:560px;">
       <h2>Jardim do Administrador</h2>
 <button class="btn" onclick="mostrarDadosPlantao()" style="margin-bottom:10px;">📊 Dados do Plantão</button>
-      <button class="btn" onclick="mostrarParticipantes()" style="margin-bottom:10px;">👥 Verificar participantes ativos</button>
+      <button class="btn" onclick="mostrarMenuParticipantes()" style="margin-bottom:10px;">👥 Verificar Participantes</button>
       <button class="btn" onclick="mostrarFrequenciasAdmin()" style="margin-bottom:10px;">🗓️ Frequências dos Plantonistas</button>
       <button class="btn" onclick="mostrarVerificarPraticantes()" style="margin-bottom:10px;">📥 Verificar Praticantes</button>
       <button class="btn" onclick="mostrarAgendaAdmin()" style="margin-bottom:10px;">📍 Verificar plantões presenciais ativos</button>
+      <button class="btn" onclick="mostrarModeracaoExperiencias()" style="margin-bottom:10px;">💬 Revisar experiências recebidas</button>
       <button class="btn" onclick="mostrarCertificadosAdmin()" style="margin-bottom:10px;">🎓 Verificar solicitações de certificado</button>
       <button class="btn" id="btnManutencao" onclick="alternarManutencao()" style="margin-bottom:20px;">🔧 Manutenção: ...</button>
 
@@ -617,6 +652,7 @@
         <option value="supervisao_plantonistas">Supervisão Plantonistas</option>
         <option value="supervisao_treinandos">Supervisão Treinandos</option>
         <option value="treinamento_teorico">Treinamento teórico</option>
+        <option value="frequencia_bolsistas">Frequência de Bolsistas — aberta a todos (opcional)</option>
       </select>
 
       <button class="btn" id="btnAbrirJanela" onclick="abrirJanela()">Abrir Janela</button>
@@ -712,12 +748,35 @@
       <span class="voltar" onclick="mostrarDadosPlantao()">← Voltar aos Dados do Plantão</span>
     </div>
   </div>
-  <div id="participantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="login-box" style="max-width:1000px;width:100%;"><h2>Verificar participantes ativos</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0;"><button class="btn" onclick="baixarParticipantes('Plantonista')">Baixar plantonistas ativos</button><button class="btn" onclick="baixarParticipantes('Treinando')">Baixar treinandos ativos</button><button class="btn" onclick="baixarParticipantes('Todos')">Baixar todos ativos</button></div><div id="listaParticipantes">Carregando...</div><span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span></div></div>
+  <div id="menuParticipantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;">
+    <div class="login-box" style="max-width:590px;width:100%;">
+      <h2>Verificar Participantes</h2>
+      <p>Consulte e atualize os cadastros do projeto ou baixe a listagem completa.</p>
+      <div class="menu-painel" style="margin-top:20px;">
+        <button onclick="mostrarParticipantes(false)">👥 Verificar Todos os Participantes</button>
+        <button onclick="mostrarParticipantes(true)">✅ Verificar participantes ativos</button>
+        <button onclick="baixarTodosParticipantes()">⬇️ Baixar lista de todos os participantes</button>
+      </div>
+      <p id="statusExportacaoParticipantes" role="status"></p>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+    </div>
+  </div>
+  <div id="moderacaoExperiencias" style="display:none;min-height:90vh;justify-content:center;padding:20px;">
+    <div class="login-box" style="max-width:900px;width:100%;">
+      <h2>Revisar experiências recebidas</h2>
+      <p>Os relatos são privados por padrão. Só é permitido publicar aqueles com autorização expressa da pessoa. Você pode retirar uma publicação do ar a qualquer momento.</p>
+      <p id="msgModeracao" role="status"></p>
+      <button class="btn" onclick="carregarModeracaoExperiencias()">↻ Atualizar relatos</button>
+      <div id="listaModeracao" style="text-align:left;margin:15px 0;"></div>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+    </div>
+  </div>
+  <div id="participantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="login-box" style="max-width:1000px;width:100%;"><h2 id="tituloListaParticipantes">Verificar Todos os Participantes</h2><p>Dados dos participantes registrados, incluindo matrícula e período de ingresso.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;"><button class="btn" onclick="baixarParticipantes('Plantonista',true)">Baixar plantonistas ativos</button><button class="btn" onclick="baixarParticipantes('Treinando',true)">Baixar treinandos ativos</button><button class="btn" onclick="baixarParticipantes('Todos',true)">Baixar todos ativos</button></div><div id="listaParticipantes">Carregando...</div><span class="voltar" onclick="mostrarMenuParticipantes()">← Voltar a Verificar Participantes</span></div></div>
   <div id="retornarCliente"><div class="login-box" style="max-width:560px;width:100%;">
     <h2>Retornar Cliente</h2><p style="margin:10px 0 16px;">Selecione um cliente pendente para atualizar a situação.</p>
     <div id="listaClientesPendentes">Carregando...</div>
     <div id="formRetorno" style="display:none;margin-top:18px;"><h3 id="clienteEscolhido" style="margin-bottom:12px;"></h3>
-      <label for="situacaoCliente">Situação</label><select id="situacaoCliente" onchange="alterarCamposRetorno()" style="width:100%;padding:10px;margin-bottom:16px;border:1px solid #ccc;border-radius:6px;"><option value="">Selecione</option><option value="Atendido">Atendido</option><option value="Desistente">Desistente</option><option value="Transferido">Transferido</option></select>
+      <label for="situacaoCliente">Situação</label><select id="situacaoCliente" onchange="alterarCamposRetorno()" style="width:100%;padding:10px;margin-bottom:16px;border:1px solid #ccc;border-radius:6px;"><option value="">Selecione</option><option value="Atendido">Atendido</option><option value="Desistente">Desistente</option><option value="Transferido">Transferido</option><option value="Devolver">Devolver cliente (liberar para outra solicitação)</option></select>
       <div id="campoRelatorio" style="display:none;"><label for="arquivoRelatorio">Relatório de atendimento (PDF, DOC ou DOCX)</label><input type="file" id="arquivoRelatorio" accept=".pdf,.doc,.docx" style="width:100%;margin:8px 0 16px;"></div>
       <div id="campoDetalhe" style="display:none;"><label id="labelDetalhe" for="detalheRetorno"></label><textarea id="detalheRetorno" rows="3" style="width:100%;padding:10px;margin:8px 0 16px;border:1px solid #ccc;border-radius:6px;"></textarea></div>
       <div id="campoTransferencia" style="display:none;"><label for="destinatarioTransferencia">Encaminhar para</label><select id="destinatarioTransferencia" style="width:100%;padding:10px;margin:8px 0 16px;border:1px solid #ccc;border-radius:6px;"><option value="">Selecione o participante</option></select><p id="mensagemTransferencia" style="font-size:13px;margin-bottom:12px;"></p></div>
@@ -920,7 +979,8 @@
       const mapa = {
         supervisao_plantonistas: 'Supervisão Plantonistas',
         supervisao_treinandos: 'Supervisão Treinandos',
-        treinamento_teorico: 'Treinamento teórico'
+        treinamento_teorico: 'Treinamento teórico',
+        frequencia_bolsistas: 'Frequência de Bolsistas (opcional)'
       };
       return mapa[tipo] || tipo;
     }
@@ -1135,13 +1195,78 @@
         .obterDadosPlantao(usuarioAtual.email,perfil);
       window.scrollTo(0,0);
     }
-    function mostrarParticipantes(){if(!usuarioAtual||usuarioAtual.perfil.toLowerCase()!=='bolsista')return;esconderTelasExtras();document.getElementById('participantes').style.display='flex';document.getElementById('listaParticipantes').textContent='Carregando...';google.script.run.withSuccessHandler(r=>{if(!r.sucesso){document.getElementById('listaParticipantes').textContent=r.mensagem;return;}participantesCache=r.participantes;renderParticipantes();}).withFailureHandler(()=>document.getElementById('listaParticipantes').textContent='Erro ao carregar.').obterParticipantesAtivos(usuarioAtual.email);window.scrollTo(0,0);}
-    function renderParticipantes(){const el=document.getElementById('listaParticipantes');el.innerHTML='';participantesCache.forEach((p,i)=>{const card=document.createElement('div');card.style.cssText='border:1px solid #d7ded9;border-radius:8px;padding:14px;margin:12px 0;text-align:left;';card.innerHTML=`<h3>${escapeHtml(p.nome||'Sem nome')} — ${escapeHtml(p.perfil)}</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:10px 0;"><label>Nome<input data-k="nome" value="${escapeAttr(p.nome)}"></label><label>E-mail<input data-k="email" value="${escapeAttr(p.email)}"></label><label>Telefone<input data-k="telefone" value="${escapeAttr(p.telefone)}" placeholder="(21) 99999-9999"></label><label>Perfil<select data-k="perfil"><option ${p.perfil.toLowerCase()==='plantonista'?'selected':''}>Plantonista</option><option ${p.perfil.toLowerCase()==='treinando'?'selected':''}>Treinando</option><option ${p.perfil.toLowerCase()==='bolsista'?'selected':''}>Bolsista</option></select></label><label>Habilitação para atendimento<select data-k="habilitado"><option value="true" ${p.habilitado!==false?'selected':''}>Habilitado</option><option value="false" ${p.habilitado===false?'selected':''}>Inabilitado</option></select></label><label>Ativo<select data-k="ativo"><option value="true" ${p.ativo?'selected':''}>Ativo</option><option value="false" ${!p.ativo?'selected':''}>Inativo</option></select></label></div><p>Supervisões: ${p.presencas} | Casos narrados: ${p.narracoes}</p><p>Atendidos: ${p.atendidos} | Desistentes: ${p.desistentes} | Transferidos: ${p.transferidos} | Pendentes: ${p.pendentes}</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn" data-save="${i}">Salvar alterações</button><button class="btn" data-mail="${i}">Enviar e-mail</button></div>`;card.querySelector('[data-save]').onclick=()=>{const d={};card.querySelectorAll('[data-k]').forEach(n=>d[n.dataset.k]=n.value);d.ativo=d.ativo==='true';d.habilitado=d.habilitado==='true';google.script.run.withSuccessHandler(r=>{alert(r.mensagem);if(r.sucesso)mostrarParticipantes();}).atualizarParticipante(usuarioAtual.email,p.linha,d);};card.querySelector('[data-mail]').onclick=()=>window.open('https://mail.google.com/mail/?view=cm&to='+encodeURIComponent(card.querySelector('[data-k="email"]').value),'_blank');el.appendChild(card);});}
-    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}function escapeAttr(s){return escapeHtml(s);}
-    function baixarParticipantes(tipo){const lista=participantesCache.filter(p=>p.ativo&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));const linhas=[['Nome','E-mail','Telefone','Perfil','Ativo','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],...lista.map(p=>[p.nome,p.email,p.telefone,p.perfil,'Sim',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='participantes-'+tipo.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(a.href);}
+    let participantesSomenteAtivos=false;
+    function mostrarMenuParticipantes(){
+      if(!usuarioAtual||usuarioAtual.perfil.toLowerCase()!=='bolsista')return;
+      esconderTelasExtras();document.getElementById('menuParticipantes').style.display='flex';window.scrollTo(0,0);
+    }
+    function carregarParticipantes_(callback){
+      google.script.run.withSuccessHandler(r=>{
+        if(!r||!r.sucesso){document.getElementById('listaParticipantes').textContent=(r&&r.mensagem)||'Erro ao carregar.';return;}
+        participantesCache=r.participantes||[];if(callback)callback();
+      }).withFailureHandler(e=>{document.getElementById('listaParticipantes').textContent='Erro ao carregar.';console.error(e);})
+      .obterParticipantesAtivos(usuarioAtual.email,usuarioAtual.tokenFreq);
+    }
+    function mostrarParticipantes(somenteAtivos){
+      if(!usuarioAtual||usuarioAtual.perfil.toLowerCase()!=='bolsista')return;
+      participantesSomenteAtivos=somenteAtivos===true;
+      esconderTelasExtras();document.getElementById('participantes').style.display='flex';
+      document.getElementById('tituloListaParticipantes').textContent=participantesSomenteAtivos?'Verificar participantes ativos':'Verificar Todos os Participantes';
+      document.getElementById('listaParticipantes').textContent='Carregando...';
+      carregarParticipantes_(renderParticipantes);window.scrollTo(0,0);
+    }
+    function renderParticipantes(){
+      const el=document.getElementById('listaParticipantes');el.innerHTML='';
+      const itens=participantesCache.filter(p=>!participantesSomenteAtivos||p.ativo);
+      if(!itens.length){el.textContent='Nenhum participante nesta categoria.';return;}
+      itens.forEach((p)=>{
+        const card=document.createElement('div');card.style.cssText='border:1px solid #d7ded9;border-radius:8px;padding:14px;margin:12px 0;text-align:left;';
+        card.innerHTML=`<h3>${escapeHtml(p.nome||'Sem nome')} — ${escapeHtml(p.perfil)}</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:10px 0;">
+        <label>Nome<input data-k="nome" value="${escapeAttr(p.nome)}"></label>
+        <label>E-mail<input data-k="email" value="${escapeAttr(p.email)}"></label>
+        <label>Telefone<input data-k="telefone" value="${escapeAttr(p.telefone)}"></label>
+        <label>Matrícula<input data-k="matricula" value="${escapeAttr(p.matricula)}"></label>
+        <label>Período de ingresso<input data-k="periodoIngresso" value="${escapeAttr(p.periodoIngresso)}" placeholder="Ex.: 2026.2"></label>
+        <label>Perfil<select data-k="perfil"><option ${p.perfil.toLowerCase()==='plantonista'?'selected':''}>Plantonista</option><option ${p.perfil.toLowerCase()==='treinando'?'selected':''}>Treinando</option><option ${p.perfil.toLowerCase()==='bolsista'?'selected':''}>Bolsista</option></select></label>
+        <label>Habilitação<select data-k="habilitado"><option value="true" ${p.habilitado!==false?'selected':''}>Habilitado</option><option value="false" ${p.habilitado===false?'selected':''}>Inabilitado</option></select></label>
+        <label>Ativo<select data-k="ativo"><option value="true" ${p.ativo?'selected':''}>Ativo</option><option value="false" ${!p.ativo?'selected':''}>Inativo</option></select></label></div>
+        <p>Supervisões: ${p.presencas} | Casos narrados: ${p.narracoes}</p>
+        <p>Atendidos: ${p.atendidos} | Desistentes: ${p.desistentes} | Transferidos: ${p.transferidos} | Pendentes: ${p.pendentes}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn" data-save>Salvar alterações</button><button class="btn" data-mail>Enviar e-mail</button></div>`;
+        card.querySelector('[data-save]').onclick=()=>{
+          const d={};card.querySelectorAll('[data-k]').forEach(n=>d[n.dataset.k]=n.value);
+          d.ativo=d.ativo==='true';d.habilitado=d.habilitado==='true';
+          google.script.run.withSuccessHandler(r=>{alert(r.mensagem);if(r.sucesso)mostrarParticipantes(participantesSomenteAtivos);})
+          .withFailureHandler(e=>alert('Não foi possível salvar: '+e.message))
+          .atualizarParticipante(usuarioAtual.email,p.linha,d,usuarioAtual.tokenFreq);
+        };
+        card.querySelector('[data-mail]').onclick=()=>window.open('https://mail.google.com/mail/?view=cm&to='+encodeURIComponent(card.querySelector('[data-k="email"]').value),'_blank');
+        el.appendChild(card);
+      });
+    }
+    function baixarTodosParticipantes(){
+      if(!usuarioAtual||usuarioAtual.perfil.toLowerCase()!=='bolsista')return;
+      const st=document.getElementById('statusExportacaoParticipantes');st.textContent='Preparando planilha...';
+      google.script.run.withSuccessHandler(r=>{
+        if(!r||!r.sucesso){st.textContent=(r&&r.mensagem)||'Erro ao exportar.';return;}
+        participantesCache=r.participantes||[];
+        baixarParticipantes('Todos',false);st.textContent='Lista completa exportada.';
+      }).withFailureHandler(e=>{st.textContent='Erro ao exportar.';console.error(e);})
+      .obterParticipantesAtivos(usuarioAtual.email,usuarioAtual.tokenFreq);
+    }
+    function baixarParticipantes(tipo,somenteAtivos){
+      const lista=participantesCache.filter(p=>(somenteAtivos!==true||p.ativo)&&(tipo==='Todos'||p.perfil.toLowerCase()===tipo.toLowerCase()));
+      const safe=v=>{const s=String(v??'');return /^[=+\-@]/.test(s)?"'"+s:s;};
+      const linhas=[['Nome','E-mail','Telefone','Matrícula','Período de ingresso','Perfil','Ativo','Habilitado','Supervisões','Casos narrados','Atendidos','Desistentes','Transferidos','Pendentes'],
+       ...lista.map(p=>[p.nome,p.email,p.telefone,p.matricula,p.periodoIngresso,p.perfil,p.ativo?'Sim':'Não',p.habilitado?'Sim':'Não',p.presencas,p.narracoes,p.atendidos,p.desistentes,p.transferidos,p.pendentes])];
+      const csv='\ufeff'+linhas.map(l=>l.map(v=>'"'+safe(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+      const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+      const a=document.createElement('a');a.href=url;a.download='participantes-todos-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
 
     function esconderTelasExtras() {
-      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'dadosPlantaoPerfil', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin','cadastroOnline','agendaPresencial','agendaAdmin','certificadosUsuario','certificadosAdmin'].forEach(function(id) {
+      ['inicio', 'login', 'painel', 'meusPlantoes', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'dadosPlantaoPerfil', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin','cadastroOnline','agendaPresencial','agendaAdmin','certificadosUsuario','certificadosAdmin','menuParticipantes','moderacaoExperiencias'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.style.setProperty('display', 'none', 'important');
       });
@@ -1167,6 +1292,7 @@
       document.getElementById('campoDetalhe').style.display=situacao==='Desistente'?'block':'none';
       document.getElementById('campoTransferencia').style.display=situacao==='Transferido'?'block':'none';
       document.getElementById('labelDetalhe').textContent='Motivo da desistência';
+      // A opção Devolver libera o cliente sem criar relatório ou desistência.
       if(situacao==='Transferido')carregarDestinatariosTransferencia();
     }
 
@@ -1181,7 +1307,7 @@
         if(!r||!r.sucesso){msg.textContent=(r&&r.mensagem)||'Não foi possível carregar os participantes.';return;}
         (r.destinatarios||[]).forEach(p=>{
           const op=document.createElement('option');op.value=p.email;
-          op.textContent=p.nome+' ('+(p.perfil==='treinando'?'Treinando':'Plantonista')+')';sel.appendChild(op);
+          op.textContent=p.nome+' ('+(p.perfil==='treinando'?'Treinando':(p.perfil==='bolsista'?'Bolsista':'Plantonista'))+')';sel.appendChild(op);
         });
         if(!(r.destinatarios||[]).length)msg.textContent='Não há destinatários disponíveis.';
       }).withFailureHandler(e=>{sel.innerHTML='<option value="">Erro ao carregar</option>';msg.textContent='Falha de conexão.';console.error(e);})
@@ -1204,10 +1330,11 @@
         return;
       }
 
+      if(situacao==='Devolver' && !confirm('Devolver este cliente à fila? Seu nome será retirado do registro de distribuição.'))return;
       const detalhe = situacao === 'Transferido'
         ? document.getElementById('destinatarioTransferencia').value
         : document.getElementById('detalheRetorno').value.trim();
-      if (situacao !== 'Atendido' && !detalhe) {
+      if (situacao !== 'Atendido' && situacao !== 'Devolver' && !detalhe) {
         alert('Preencha o campo solicitado.');
         return;
       }
@@ -2782,6 +2909,75 @@
     window.PLANTAO_BUILD = '2026-10-05-fix-nav-2';
     console.info('[Plantão] build:', window.PLANTAO_BUILD);
   </script>
+
+
+<script>
+function enviarExperienciaPublica(){
+  const msg=document.getElementById('mensagemExperiencia');
+  const btn=document.getElementById('btnEnviarExperiencia');
+  const nome=document.getElementById('expNome').value.trim();
+  const mensagem=document.getElementById('expMensagem').value.trim();
+  if(mensagem.length<20||mensagem.length>2000){msg.textContent='Escreva uma mensagem de 20 a 2000 caracteres.';return;}
+  btn.disabled=true;msg.textContent='Enviando...';
+  google.script.run.withSuccessHandler(r=>{
+    btn.disabled=false;msg.textContent=r.mensagem||'Não foi possível enviar.';
+    if(r.sucesso){document.getElementById('expMensagem').value='';document.getElementById('expNome').value='';document.getElementById('expAutorizo').checked=false;}
+  }).withFailureHandler(e=>{btn.disabled=false;msg.textContent='Falha no envio. Tente novamente.';console.error(e);})
+  .enviarExperienciaPlantao(nome,mensagem,document.getElementById('expAutorizo').checked);
+}
+function carregarExperienciasPublicas(){
+  const el=document.getElementById('experienciasPublicadas');
+  google.script.run.withSuccessHandler(r=>{
+    el.innerHTML='';if(!r||!r.sucesso||!r.experiencias?.length)return;
+    const titulo=document.createElement('h3');titulo.textContent='Experiências compartilhadas';el.appendChild(titulo);
+    r.experiencias.forEach(x=>{
+      const div=document.createElement('div');div.className='relato-publicado';
+      const name=document.createElement('strong');name.textContent=x.nome||'Relato anônimo';
+      const corpo=document.createElement('div');corpo.textContent=x.mensagem;
+      div.append(name,corpo);el.appendChild(div);
+    });
+  }).withFailureHandler(e=>{console.error(e);}).listarExperienciasPublicas();
+}
+function mostrarModeracaoExperiencias(){
+  if(!usuarioAtual||usuarioAtual.perfil.toLowerCase()!=='bolsista')return;
+  esconderTelasExtras();document.getElementById('moderacaoExperiencias').style.display='flex';
+  carregarModeracaoExperiencias();window.scrollTo(0,0);
+}
+function carregarModeracaoExperiencias(){
+  const el=document.getElementById('listaModeracao');el.textContent='Carregando relatos...';
+  google.script.run.withSuccessHandler(r=>{
+    el.innerHTML='';if(!r||!r.sucesso){el.textContent=r?.mensagem||'Falha ao carregar.';return;}
+    if(!r.experiencias.length){el.textContent='Nenhuma experiência recebida.';return;}
+    r.experiencias.forEach(x=>{
+      const item=document.createElement('div');item.className='relato-publicado';
+      const titulo=document.createElement('strong');
+      titulo.textContent=(x.nome||'Anônimo')+' · '+x.data+' '+x.hora;
+      const meta=document.createElement('p');meta.textContent='Autorizou publicação: '+(x.autorizou?'Sim':'Não')+' · Situação: '+x.status;
+      const body=document.createElement('p');body.textContent=x.mensagem;body.style.whiteSpace='pre-wrap';
+      item.append(titulo,meta,body);
+      const botoes=document.createElement('div');botoes.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';
+      const pub=document.createElement('button');pub.className='btn';pub.textContent='Publicar';
+      pub.disabled=!x.autorizou||x.status==='Publicado';
+      pub.title=x.autorizou?'Publicar após revisão':'Publicação não autorizada pela pessoa';
+      pub.onclick=()=>moderarExperiencia(x.id,true);
+      const tirar=document.createElement('button');tirar.className='btn';tirar.textContent='Retirar do ar / manter privada';
+      tirar.onclick=()=>moderarExperiencia(x.id,false);
+      botoes.append(pub,tirar);item.append(botoes);el.append(item);
+    });
+  }).withFailureHandler(e=>{el.textContent='Erro ao consultar relatos.';console.error(e);})
+  .listarExperienciasAdmin(usuarioAtual.email,usuarioAtual.tokenFreq);
+}
+function moderarExperiencia(id,publicar){
+  if(!confirm(publicar?'Publicar este relato na página principal?':'Manter este relato privado / retirar publicação?'))return;
+  const msg=document.getElementById('msgModeracao');msg.textContent='Salvando decisão...';
+  google.script.run.withSuccessHandler(r=>{
+    msg.textContent=r.mensagem||'';if(r.sucesso){carregarModeracaoExperiencias();carregarExperienciasPublicas();}
+  }).withFailureHandler(e=>{msg.textContent='Falha ao salvar.';console.error(e);})
+  .moderarExperienciaPlantao(usuarioAtual.email,usuarioAtual.tokenFreq,id,publicar);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',carregarExperienciasPublicas);
+else carregarExperienciasPublicas();
+</script>
 
 </body>
 </html>
