@@ -427,6 +427,7 @@
     <div class="menu-painel">
       <button id="btnSolicitarCliente" onclick="solicitarCliente()">📋 Solicitar Cliente</button>
       <button id="btnRetornarCliente" onclick="acaoPainel('retornarCliente')">🔄 Retornar Cliente</button>
+      <button id="btnSolicitarPsicologo" onclick="mostrarSolicitarPsicologo()">🧑‍🤝‍🧑 Solicitar Psicólogo</button>
       <button id="btnMarcarPresencial" onclick="mostrarAgendaPresencial()">📍 Marcar um plantão presencial</button>
       <button id="btnSupervisoes" onclick="mostrarMinhasSupervisoes()">🌱 Minhas Supervisões/Treinamentos</button>
       <button id="btnMeusPlantoes" onclick="mostrarMeusPlantoes()">📁 Meus Plantões</button>
@@ -436,7 +437,7 @@
       <button id="btnCertificados" onclick="mostrarCertificadosUsuario()">🎓 Certificados</button>
       <button onclick="mostrarEnviarFotos()" id="btnEnviarFotos">📸 Enviar Fotos</button>
       <button id="btnMaterialEstudo" onclick="window.open('https://drive.google.com/drive/folders/1oy7PtTabmdywdDXDdtm-3NrTkGyN05CS','_blank','noopener,noreferrer')">📚 Materiais de Estudo ↗</button>
-      <button id="btnSolicitarPsicologo" onclick="mostrarSolicitarPsicologo()">🧑‍🤝‍🧑 Solicitar Psicólogo</button>
+    
       <button id="btnJardimAdmin" onclick="mostrarJardimAdmin()" style="display:none;">🌻 Jardim do Administrador</button>
     </div>
 
@@ -447,8 +448,9 @@
   <div id="certificadosUsuario" style="display:none;min-height:90vh;justify-content:center;align-items:center;padding:20px;">
     <div class="login-box" style="max-width:560px;width:100%;">
       <h2>Certificados</h2>
-      <p style="margin:14px 0;line-height:1.6;">A cada dez atendimentos concluídos e acompanhados de relatório, você tem direito a um novo certificado. O primeiro é de Treinamento; os seguintes são de Plantonista Voluntário.</p>
-      <p style="margin:0 0 18px;font-size:14px;color:#4a5c52;">Ao solicitar, enviaremos por e-mail somente os seus certificados que estiverem na pasta Certificados Emitidos. Os certificados recém-gerados na pasta Certificados automáticos não ficam disponíveis para solicitação até serem colocados em Certificados Emitidos. Se algum estiver pendente, avisaremos a equipe.</p>
+      <p style="margin:14px 0;line-height:1.6;">A cada dez atendimentos concluídos e acompanhados de relatórios, você tem direito a um novo certificado. O primeiro é de Treinamento; os seguintes são de Plantonista Voluntário.</p>
+      <p style="margin:0 0 18px;font-size:14px;color:#4a5c52;">Ao solicitar, enviaremos por e-mail somente os seus certificados que foram aprovados por um bolsista.
+      Se algum envio de certificado estiver pendente, a equipe de bolsistas será avisada </p>
       <div id="mensagemCertificadosUsuario" role="status" aria-live="polite" style="margin-bottom:14px;line-height:1.5;"></div>
       <button class="btn" id="btnSolicitarCertificado" onclick="solicitarCertificadoUsuario()">Solicitar Certificado</button>
       <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
@@ -482,7 +484,7 @@
       </div>
       <div class="percurso-pessoal">
         <h3>🌱 Meu percurso no Plantão</h3>
-        <p class="subtexto-integrado">Sua trajetória formativa e os registros associados ao seu nome completo.</p>
+        <p class="subtexto-integrado">Sua trajetória formativa como plantonista 💚.</p>
         <div id="resumoPercurso" aria-live="polite">Carregando seu percurso...</div>
       </div>
 
