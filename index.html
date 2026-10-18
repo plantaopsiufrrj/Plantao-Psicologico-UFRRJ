@@ -3287,5 +3287,424 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else carregarExperienciasPublicas();
 </script>
 
+
+  <script>
+// ============================================================
+// HISTÓRICO DE NAVEGAÇÃO DO PLANTÃO PSICOLÓGICO
+// Compatível com celulares, tablets e computadores
+// ============================================================
+
+(function () {
+
+  // Todas as telas existentes no site
+  const idsTelas = [
+    'inicio',
+    'login',
+    'painel',
+    'meusPlantoes',
+    'centralNotificacoes',
+    'calendarioPlantao',
+    'muralAvisos',
+    'administrarMural',
+    'jardimAdmin',
+    'registrarFrequencia',
+    'registrarFalta',
+    'retornarCliente',
+    'presencial',
+    'dadosPlantao',
+    'dadosPlantaoPerfil',
+    'participantes',
+    'enviarFotos',
+    'solicitarPsicologo',
+    'verificarPraticantes',
+    'painelJustificativas',
+    'novaJanelaAdmin',
+    'frequenciasAdmin',
+    'minhasSupervisoes',
+    'conferirPresenca',
+    'conferirPresencasAdmin',
+    'ausenciasAdmin',
+    'relatorioPresencaAdmin',
+    'cadastroOnline',
+    'agendaPresencial',
+    'agendaAdmin',
+    'certificadosUsuario',
+    'certificadosAdmin',
+    'menuParticipantes',
+    'moderacaoExperiencias'
+  ];
+
+  const marcador = 'plantao-historico-v1';
+
+  // Telas exclusivas do administrador
+  const admin = new Set([
+    'jardimAdmin',
+    'administrarMural',
+    'dadosPlantao',
+    'dadosPlantaoPerfil',
+    'participantes',
+    'painelJustificativas',
+    'novaJanelaAdmin',
+    'frequenciasAdmin',
+    'conferirPresencasAdmin',
+    'ausenciasAdmin',
+    'relatorioPresencaAdmin',
+    'verificarPraticantes',
+    'agendaAdmin',
+    'certificadosAdmin',
+    'menuParticipantes',
+    'moderacaoExperiencias'
+  ]);
+
+  // Telas permitidas para usuários inabilitados
+  const telasInabilitado = new Set([
+    'painel',
+    'minhasSupervisoes',
+    'registrarFrequencia',
+    'registrarFalta',
+    'conferirPresenca',
+    'certificadosUsuario',
+    'centralNotificacoes',
+    'calendarioPlantao',
+    'muralAvisos'
+  ]);
+
+  function iniciar() {
+
+    const elementos = idsTelas
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+
+    // Identifica qual tela está aberta
+    function telaVisivel() {
+
+      const el = elementos.find(el =>
+        getComputedStyle(el).display !== 'none'
+      );
+
+      return el ? el.id : null;
+    }
+
+    let telaAtual = telaVisivel() || 'inicio';
+
+    let indice = 0;
+
+    const caminhos = [telaAtual];
+
+    let restaurando = false;
+
+    let cliqueVoltar = false;
+
+    // Cria um registro de navegação
+    function estado(tela, posicao) {
+
+      return {
+        __plantaoHistorico: marcador,
+        tela: tela,
+        posicao: posicao
+      };
+
+    }
+
+    // Registra a primeira tela
+    try {
+
+      history.replaceState(
+        estado(telaAtual, 0),
+        ''
+      );
+
+    } catch (erro) {
+
+      console.warn(
+        '[Plantão] Histórico do navegador indisponível:',
+        erro
+      );
+
+      return;
+    }
+
+    // Detecta quando o usuário utiliza os botões
+    // de voltar que já existem no próprio site
+    document.addEventListener('click', function (evento) {
+
+      cliqueVoltar = Boolean(
+        evento.target.closest &&
+        evento.target.closest('.voltar')
+      );
+
+    }, true);
+
+    // Verifica se o usuário pode acessar uma tela
+    function destinoPermitido(tela) {
+
+      if (
+        tela === 'inicio' ||
+        tela === 'login'
+      ) {
+        return true;
+      }
+
+      if (
+        typeof usuarioAtual === 'undefined' ||
+        !usuarioAtual
+      ) {
+        return false;
+      }
+
+      const perfil = String(
+        usuarioAtual.perfil || ''
+      ).trim().toLowerCase();
+
+      // Telas administrativas
+      if (
+        admin.has(tela) &&
+        perfil !== 'bolsista'
+      ) {
+        return false;
+      }
+
+      // Contas inativas
+      if (
+        perfil !== 'bolsista' &&
+        usuarioAtual.ativo === false
+      ) {
+
+        return (
+          tela === 'painel' ||
+          tela === 'meusPlantoes'
+        );
+
+      }
+
+      // Contas inabilitadas
+      if (
+        perfil !== 'bolsista' &&
+        usuarioAtual.habilitado === false
+      ) {
+
+        return telasInabilitado.has(tela);
+
+      }
+
+      return true;
+    }
+
+    // Exibe uma tela sem criar uma nova entrada
+    // no histórico do navegador
+    function exibirSemRegistrar(tela) {
+
+      restaurando = true;
+
+      elementos.forEach(function (el) {
+
+        let display = 'none';
+
+        if (el.id === tela) {
+
+          display = [
+            'inicio',
+            'painel',
+            'painelJustificativas'
+          ].includes(tela)
+            ? 'block'
+            : 'flex';
+
+        }
+
+        el.style.setProperty(
+          'display',
+          display,
+          'important'
+        );
+
+      });
+
+      window.scrollTo(0, 0);
+
+      queueMicrotask(function () {
+        restaurando = false;
+      });
+
+    }
+
+    // ========================================================
+    // IDENTIFICA AUTOMATICAMENTE AS MUDANÇAS DE TELA
+    // ========================================================
+
+    const observador = new MutationObserver(function () {
+
+      if (restaurando) return;
+
+      const novaTela = telaVisivel();
+
+      if (
+        !novaTela ||
+        novaTela === telaAtual
+      ) {
+        return;
+      }
+
+      // Verifica se a tela já existe no histórico anterior
+      const destinoAnterior = caminhos.lastIndexOf(
+        novaTela,
+        indice - 1
+      );
+
+      const voltar =
+        destinoAnterior >= 0 &&
+        (
+          cliqueVoltar ||
+          destinoAnterior === indice - 1
+        );
+
+      telaAtual = novaTela;
+
+      cliqueVoltar = false;
+
+      if (voltar) {
+
+        // Retorna à entrada existente,
+        // evitando criar páginas duplicadas
+        history.go(destinoAnterior - indice);
+
+        return;
+      }
+
+      // Elimina ramificações de navegação futura
+      caminhos.length = indice + 1;
+
+      // Registra a nova tela
+      caminhos.push(novaTela);
+
+      indice++;
+
+      try {
+
+        history.pushState(
+          estado(novaTela, indice),
+          ''
+        );
+
+      } catch (erro) {
+
+        console.warn(
+          '[Plantão] Não foi possível registrar a tela:',
+          erro
+        );
+
+      }
+
+    });
+
+    // Observa todas as telas do site
+    elementos.forEach(el => {
+
+      observador.observe(el, {
+        attributes: true,
+        attributeFilter: ['style']
+      });
+
+    });
+
+    // ========================================================
+    // BOTÕES NATIVOS DE VOLTAR E AVANÇAR
+    // ========================================================
+
+    window.addEventListener('popstate', function (evento) {
+
+      const dados = evento.state;
+
+      if (
+        !dados ||
+        dados.__plantaoHistorico !== marcador
+      ) {
+        return;
+      }
+
+      indice = dados.posicao;
+
+      let destino = dados.tela;
+
+      const sessaoAberta =
+        typeof usuarioAtual !== 'undefined' &&
+        !!usuarioAtual;
+
+      // Impede restaurar telas restritas
+      // quando o usuário não possui mais acesso
+      if (
+        !destinoPermitido(destino) ||
+        (destino === 'login' && sessaoAberta)
+      ) {
+
+        destino = sessaoAberta
+          ? 'painel'
+          : 'inicio';
+
+        try {
+
+          history.replaceState(
+            estado(destino, indice),
+            ''
+          );
+
+        } catch (_) {}
+
+      }
+
+      caminhos[indice] = destino;
+
+      telaAtual = destino;
+
+      cliqueVoltar = false;
+
+      // Fecha eventual foto ampliada
+      const modal = document.getElementById(
+        'fotoAmpliada'
+      );
+
+      if (
+        modal &&
+        modal.classList.contains('ativa') &&
+        typeof fecharFotoAmpliada === 'function'
+      ) {
+
+        fecharFotoAmpliada();
+
+      }
+
+      // Restaura a tela anterior
+      if (telaVisivel() !== destino) {
+
+        exibirSemRegistrar(destino);
+
+      }
+
+    });
+
+    console.info(
+      '[Plantão] Histórico de navegação ativado.'
+    );
+
+  }
+
+  // Inicializa o sistema após carregar a página
+  if (document.readyState === 'loading') {
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      iniciar,
+      { once: true }
+    );
+
+  } else {
+
+    iniciar();
+
+  }
+
+})();
+</script>
+  
 </body>
 </html>
