@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="plantao-build" content="2026-10-15-painel-integrado-v1">
+  <meta name="plantao-build" content="2026-10-19-integrado-comunicacoes-v2">
   <title>Plantão Psicológico</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -41,6 +41,7 @@
       cursor: pointer;
     }
     .btn:hover { background: #345f47; }
+    #inicio.pagina-em-manutencao header nav a:not(:last-child) { display:none; }
 
     section { padding: 40px 20px; max-width: 800px; margin: 0 auto; }
     section h2 { margin-bottom: 15px; }
@@ -332,7 +333,12 @@
         <a href="#" onclick="mostrarLogin(); return false;">Floresta dos Plantonistas</a>
       </nav>
     </header>
-
+    <div id="avisoManutencaoPaginaPrincipal" style="display:none;max-width:760px;margin:65px auto;text-align:center;padding:38px 24px;">
+      <h1>🌿 Plataforma em manutenção</h1>
+      <p style="margin:16px 0;line-height:1.7;">A plataforma do Plantão Psicológico da UFRRJ encontra-se em manutenção no momento. Agradecemos a compreensão.</p>
+      <button class="btn" onclick="mostrarLogin()">Floresta dos Plantonistas →</button>
+    </div>
+    <div id="conteudoPaginaPublica" style="display:none;">
     <div class="hero">
       <h1>Plantão Psicológico da UFRRJ</h1>
       <p>Um espaço de escuta e acolhimento</p>
@@ -368,6 +374,11 @@
       <button type="button" class="btn" onclick="carregarAgendaPublica()" style="margin-top:12px;">↻ Atualizar horários</button>
     </section>
 
+    <section id="proximosEventosPlantao" style="max-width:940px;">
+      <h2>🗓️ Próximos Eventos</h2>
+      <p style="margin:12px 0;line-height:1.6;">Confira as próximas atividades e encontros do projeto.</p>
+      <div id="listaProximosEventos" class="integrada-lista" aria-live="polite">Carregando eventos...</div>
+    </section>
     <section id="instagramPlantao" style="max-width:940px;">
       <h2>🌿 Acompanhe o Plantão</h2>
       <a href="https://www.instagram.com/plantaopsiufrrj/" target="_blank" rel="noopener noreferrer" class="ig-link" aria-label="Conheça a nossa página do Instagram">
@@ -392,6 +403,7 @@
       <div id="experienciasPublicadas" style="margin-top:24px;"></div>
     </section>
     <footer>Plantão Psicológico • UFRRJ</footer>
+    </div>
   </div>
 
   <!-- TELA DE LOGIN -->
@@ -438,7 +450,7 @@
       <button onclick="mostrarEnviarFotos()" id="btnEnviarFotos">📸 Enviar Fotos</button>
       <button id="btnMaterialEstudo" onclick="window.open('https://drive.google.com/drive/folders/1oy7PtTabmdywdDXDdtm-3NrTkGyN05CS','_blank','noopener,noreferrer')">📚 Materiais de Estudo ↗</button>
     
-      <button id="btnJardimAdmin" onclick="mostrarJardimAdmin()" style="display:none;">🌻 Jardim do Administrador</button>
+      <button id="btnJardimAdmin" onclick="mostrarJardimAdmin()" style="display:none;">🌻 Jardim dos Bolsistas</button>
     </div>
 
     <button class="btn-sair" onclick="sair()">Sair</button>
@@ -465,7 +477,7 @@
       <div id="mensagemCertificadosAdmin" role="status" aria-live="polite" style="margin-bottom:12px;"></div>
       <button class="btn" onclick="carregarCertificadosAdmin()" style="margin-bottom:18px;">↻ Atualizar solicitações</button>
       <div id="listaCertificadosAdmin" style="text-align:left;">Carregando...</div>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
 
@@ -478,10 +490,6 @@
 
       <button class="btn" id="btnSolicitarDados" onclick="solicitarDadosClientes()">Solicitar Dados dos Meus Clientes</button>
 
-      <div class="resumo-plantao">
-        <h3>Meu resumo do plantão:</h3>
-        <p id="resumoTexto">Carregando...</p>
-      </div>
       <div class="percurso-pessoal">
         <h3>🌱 Meu percurso no Plantão</h3>
         <p class="subtexto-integrado">Sua trajetória formativa como plantonista 💚.</p>
@@ -525,7 +533,11 @@
         <label for="eventoCalPublico">Visível para</label>
         <select id="eventoCalPublico"><option value="Todos">Todos os perfis</option><option value="plantonista">Plantonistas</option><option value="treinando">Treinandos</option><option value="bolsista">Bolsistas</option></select>
         <label for="eventoCalDescricao">Descrição (opcional)</label><textarea id="eventoCalDescricao" rows="3" maxlength="1500"></textarea>
-        <button class="btn" onclick="salvarEventoCalendario()">Adicionar evento</button>
+        <label><input type="checkbox" id="eventoCalPublicarSite"> Exibir também na página principal, em "Próximos Eventos" (requer "Todos os perfis")</label>
+        <label for="eventoCalFotos">Fotos do evento (opcional; até 3 fotos JPG/PNG, 2,5 MB cada)</label>
+        <input type="file" id="eventoCalFotos" accept="image/jpeg,image/png" multiple>
+        <p style="font-size:13px;">As fotos de eventos poderão ficar publicamente acessíveis. Não envie imagens de clientes ou informações confidenciais.</p>
+        <button class="btn" id="btnSalvarEventoCalendario" onclick="salvarEventoCalendario()">Adicionar evento</button>
         <p id="msgEventoCalendario" role="status"></p>
       </div>
       <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
@@ -552,7 +564,7 @@
       <p id="msgMuralAdmin" role="status"></p>
       <h3 style="margin-top:20px;">Avisos atualmente publicados</h3>
       <div id="listaMuralAdmin" class="integrada-lista"></div>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
 
@@ -712,7 +724,7 @@
   <!-- JARDIM DO ADMINISTRADOR (painel do bolsista) -->
   <div id="jardimAdmin">
     <div class="login-box" style="max-width:560px;">
-      <h2>Jardim do Administrador</h2>
+      <h2>Jardim dos Bolsistas</h2>
 <button class="btn" onclick="mostrarDadosPlantao()" style="margin-bottom:10px;">📊 Dados do Plantão</button>
       <button class="btn" onclick="mostrarMenuParticipantes()" style="margin-bottom:10px;">👥 Verificar Participantes</button>
       <button class="btn" onclick="mostrarFrequenciasAdmin()" style="margin-bottom:10px;">🗓️ Frequências dos Plantonistas</button>
@@ -721,13 +733,43 @@
       <button class="btn" onclick="mostrarModeracaoExperiencias()" style="margin-bottom:10px;">💬 Revisar experiências recebidas</button>
       <button class="btn" onclick="mostrarAdministrarMural()" style="margin-bottom:10px;">📣 Publicar avisos no Mural</button>
       <button class="btn" onclick="mostrarCertificadosAdmin()" style="margin-bottom:10px;">🎓 Verificar solicitações de certificado</button>
-      <button class="btn" id="btnManutencao" onclick="alternarManutencao()" style="margin-bottom:20px;">🔧 Manutenção: ...</button>
+      <button class="btn" onclick="mostrarEnviarEmail()" style="margin-bottom:10px;">✉️ Enviar e-mail</button>
+      <button class="btn" id="btnManutencao" onclick="alternarManutencao()" style="margin-bottom:10px;">🔧 Manutenção da Floresta: ...</button>
+      <button class="btn" id="btnManutencaoPagina" onclick="alternarManutencaoPagina()" style="margin-bottom:20px;">🔧 Manutenção Página Principal: ...</button>
 
       
 
       
 
       <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
+    </div>
+  </div>
+  <div id="enviarEmail" class="tela-integrada" style="display:none;">
+    <div class="login-box integrada-box">
+      <h2>✉️ Enviar e-mail</h2>
+      <p class="subtexto-integrado">Enviar mensagens da conta oficial do Plantão com seleção de destinatários e registro de cada envio.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;">
+        <button class="btn" type="button" onclick="selecionarCategoriaEmail('participantes')">Participantes</button>
+        <button class="btn" type="button" onclick="selecionarCategoriaEmail('psicologos')">Psicólogos</button>
+        <button class="btn" type="button" onclick="selecionarCategoriaEmail('clientes')">Clientes</button>
+      </div>
+      <div class="agenda-form" id="formEmailEmMassa" style="display:none;">
+        <strong id="emailCategoriaTitulo"></strong>
+        <label>Destinatários (filtro)
+          <select id="emailFiltro" onchange="atualizarPreviaEmail()"></select>
+        </label>
+        <label id="emailAtivosLinha"><input id="emailSomenteAtivos" type="checkbox" checked onchange="atualizarPreviaEmail()"> Somente participantes com conta ativa</label>
+        <label>Assunto <input id="emailAssunto" type="text" maxlength="160" autocomplete="off"></label>
+        <label>Mensagem <textarea id="emailCorpo" rows="8" maxlength="8000" placeholder="Escreva a mensagem aqui..."></textarea></label>
+        <label id="emailConsentimentoLinha" style="display:none;">
+          <input id="emailConsentimento" type="checkbox">
+          Confirmo que este contato com clientes tem finalidade compatível com o atendimento e fundamento legal adequado, e respeita eventuais recusas de contato.
+        </label>
+        <p id="emailPrevia" role="status">Selecione uma categoria para ver a quantidade de destinatários.</p>
+        <button class="btn" type="button" onclick="confirmarEnviarEmail()" id="btnCampanhaEmail">Conferir e registrar envio</button>
+        <p id="emailMensagemStatus" role="status"></p>
+      </div>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
   <div id="frequenciasAdmin" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
@@ -738,7 +780,7 @@
         <button onclick="mostrarJustificativasAdmin()">📝 Justificativas pendentes</button>
         <button onclick="mostrarConferirPresencasAdmin(false)">✅ Conferir presenças</button>
       </div>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
 
@@ -782,7 +824,7 @@
         <span class="voltar" onclick="mostrarFrequenciasAdmin()">← Voltar para Frequências dos Plantonistas</span>
       </div>
 
-  <!-- CONFERIR PRESENÇAS (Jardim do Administrador > Frequências) -->
+  <!-- CONFERIR PRESENÇAS (Jardim dos Bolsistas > Frequências) -->
   <div id="conferirPresencasAdmin" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
     <div class="login-box" style="max-width:680px;">
       <h2>Conferir presenças</h2>
@@ -815,7 +857,7 @@
     </div>
   </div>
 
-  <!-- VERIFICAR PRATICANTES (download de relatórios por período, dentro do Jardim do Administrador) -->
+  <!-- VERIFICAR PRATICANTES (download de relatórios por período, dentro do Jardim dos Bolsistas) -->
   <div id="verificarPraticantes" style="display:none; min-height:90vh; justify-content:center; align-items:center; padding:20px;">
     <div class="login-box" style="max-width:480px;">
       <h2>Verificar Praticantes</h2>
@@ -835,7 +877,7 @@
         <button class="btn" onclick="baixarRelatorioPraticantes('geral')">Baixar lista geral</button>
       </div>
 
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
 
@@ -849,7 +891,7 @@
         <button class="btn" onclick="mostrarDadosPlantaoPerfil('treinando')">Conferir dados dos treinandos</button>
         <button class="btn" onclick="mostrarDadosPlantaoPerfil('bolsista')">Conferir dados dos bolsistas</button>
       </div>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
   <div id="dadosPlantaoPerfil" style="display:none;min-height:90vh;justify-content:center;padding:20px;">
@@ -869,7 +911,7 @@
         <button onclick="baixarTodosParticipantes()">⬇️ Baixar lista de todos os participantes</button>
       </div>
       <p id="statusExportacaoParticipantes" role="status"></p>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
   <div id="moderacaoExperiencias" style="display:none;min-height:90vh;justify-content:center;padding:20px;">
@@ -879,7 +921,7 @@
       <p id="msgModeracao" role="status"></p>
       <button class="btn" onclick="carregarModeracaoExperiencias()">↻ Atualizar relatos</button>
       <div id="listaModeracao" style="text-align:left;margin:15px 0;"></div>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
   <div id="participantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="login-box" style="max-width:1000px;width:100%;"><h2 id="tituloListaParticipantes">Verificar Todos os Participantes</h2><p>Dados dos participantes registrados, incluindo matrícula e período de ingresso.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;"><button class="btn" onclick="baixarParticipantes('Plantonista',true)">Baixar plantonistas ativos</button><button class="btn" onclick="baixarParticipantes('Treinando',true)">Baixar treinandos ativos</button><button class="btn" onclick="baixarParticipantes('Todos',true)">Baixar todos ativos</button></div><div id="listaParticipantes">Carregando...</div><span class="voltar" onclick="mostrarMenuParticipantes()">← Voltar a Verificar Participantes</span></div></div>
@@ -900,6 +942,7 @@
     <p style="margin:8px 0 14px;">Se houver, insira informações básicas sobre o cliente:</p>
     <label for="presNome">Nome:</label><input id="presNome" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presCurso">Curso:</label><input id="presCurso" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
+    <label for="presEmail">E-mail (opcional):</label><input id="presEmail" type="email" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presIdade">Idade:</label><input id="presIdade" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presCidade">Cidade:</label><input id="presCidade" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
     <label for="presEstado">Estado:</label><input id="presEstado" type="text" style="width:100%;padding:10px;margin:8px 0 12px;border:1px solid #ccc;border-radius:6px;">
@@ -924,6 +967,7 @@
         <label>Nome <input id="onlineNome" type="text"></label>
         <label>Curso <input id="onlineCurso" type="text"></label>
         <label>Idade <input id="onlineIdade" type="text"></label>
+        <label>E-mail (opcional) <input id="onlineEmail" type="email"></label>
         <label>Cidade <input id="onlineCidade" type="text"></label>
         <label>Estado <input id="onlineEstado" type="text"></label>
         <label>País <input id="onlinePais" type="text"></label>
@@ -986,7 +1030,7 @@
       <p style="margin:12px 0 18px;color:#4a5c52;line-height:1.5;">Confira, altere ou cancele os plantões divulgados pelos participantes.</p>
       <div id="listaAgendaAdmin" class="lista-agenda">Carregando...</div>
       <button class="btn" onclick="carregarAgendaAdmin()" style="margin-top:12px;">↻ Atualizar lista</button>
-      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim do Administrador</span>
+      <span class="voltar" onclick="voltarAoJardimAdmin()">← Voltar ao Jardim dos Bolsistas</span>
     </div>
   </div>
 
@@ -1149,15 +1193,12 @@
     }
     function carregarMeuPercurso(){
       const el=document.getElementById('resumoPercurso');el.textContent='Carregando seu percurso...';
-      document.getElementById('resumoTexto').textContent='Carregando...';
       if(!usuarioAtual||!usuarioAtual.tokenFreq){el.textContent='Entre novamente para ver seu percurso.';return;}
       google.script.run.withSuccessHandler(r=>{
         if(!r||!r.sucesso){el.textContent=r?.mensagem||'Não foi possível carregar seu percurso.';return;}
-        const resumoTexto=document.getElementById('resumoTexto');
-        if(resumoTexto)resumoTexto.textContent=r.pendentes+' pendente(s) · '+r.atendidos+' atendido(s) · '+r.desistentes+' desistente(s) · '+r.transferidos+' transferido(s)';
         const itens=[['Atendimentos realizados',r.atendidos],['Relatórios válidos distintos',r.relatorios],
           ['Supervisões/treinamentos registrados',r.supervisoes],['Certificados registrados',r.certificados],
-          ['Clientes pendentes',r.pendentes],['Desistências',r.desistentes]];
+          ['Clientes pendentes',r.pendentes],['Desistências',r.desistentes],['Transferências',r.transferidos]];
         el.innerHTML='<div class="percurso-grid">'+itens.map(([t,v])=>'<div class="percurso-dado"><strong>'+Number(v||0)+'</strong><span>'+escapeHtml(t)+'</span></div>').join('')+'</div>'+
           '<p style="margin-top:14px;line-height:1.6">'+(r.ingresso?'Ingresso no projeto: <strong>'+escapeHtml(r.ingresso)+'</strong><br>'+(r.tempoParticipacao?'Tempo aproximado no projeto: <strong>'+escapeHtml(r.tempoParticipacao)+'</strong><br>':''):'')+
           'Próximo marco de certificados: <strong>'+Number(r.proximomarco||10)+' atendimentos com relatórios distintos</strong>.</p>';
@@ -1225,6 +1266,8 @@
         const dia=e.data.split('-').reverse().join('/');
         item.innerHTML='<h3>'+escapeHtml(e.titulo)+'</h3><small>'+escapeHtml(dia)+(e.hora?' · '+escapeHtml(e.hora):'')+' · '+escapeHtml(e.tipo)+'</small>'+
           (e.descricao?'<p>'+escapeHtml(e.descricao)+'</p>':'');
+        if(Array.isArray(e.fotos)&&e.fotos.length){const fotos=document.createElement('div');fotos.className='agenda-fotos';
+          e.fotos.forEach(url=>{const img=document.createElement('img');img.src=url;img.alt='Foto de evento';img.loading='lazy';img.onclick=()=>abrirFotoAmpliada(url);fotos.appendChild(img);});item.appendChild(fotos);}
         if(e.editavel){const b=document.createElement('button');b.textContent='Retirar evento';b.onclick=()=>{
           if(!confirm('Retirar este evento do calendário?'))return;
           google.script.run.withSuccessHandler(r=>r?.sucesso?carregarCalendarioPlantao():alert(r?.mensagem||'Erro'))
@@ -1232,16 +1275,30 @@
         lista.appendChild(item);
       });
     }
-    function salvarEventoCalendario(){
+    async function salvarEventoCalendario(){
       const r={data:document.getElementById('eventoCalData').value,hora:document.getElementById('eventoCalHora').value,
         titulo:document.getElementById('eventoCalTitulo').value,tipo:document.getElementById('eventoCalTipo').value,
-        publico:document.getElementById('eventoCalPublico').value,descricao:document.getElementById('eventoCalDescricao').value};
-      const el=document.getElementById('msgEventoCalendario');el.textContent='Salvando...';
-      google.script.run.withSuccessHandler(x=>{el.textContent=x?.mensagem||'Erro';if(x?.sucesso){document.getElementById('eventoCalTitulo').value='';document.getElementById('eventoCalDescricao').value='';
-        const [y,m]=r.data.split('-');if(y&&m){mesCalendario=new Date(Number(y),Number(m)-1,1);}carregarCalendarioPlantao();}})
-      .withFailureHandler(e=>{el.textContent='Erro ao salvar evento.';console.error(e);})
-      .novSalvarEventoCalendario(usuarioAtual.email,usuarioAtual.tokenFreq,r);
+        publico:document.getElementById('eventoCalPublico').value,descricao:document.getElementById('eventoCalDescricao').value,
+        publicarSite:document.getElementById('eventoCalPublicarSite').checked};
+      const el=document.getElementById('msgEventoCalendario'),btn=document.getElementById('btnSalvarEventoCalendario');
+      const arquivos=Array.from(document.getElementById('eventoCalFotos').files);
+      if(arquivos.length>3||arquivos.some(f=>!['image/jpeg','image/png'].includes(f.type)||f.size>2500000)){
+        el.textContent='Escolha até 3 fotos JPG/PNG com no máximo 2,5 MB cada.';return;
+      }
+      el.textContent='Salvando evento...';btn.disabled=true;
+      try{
+        const fotos=await Promise.all(arquivos.map(f=>lerArquivoPortal_(f)));
+        google.script.run.withSuccessHandler(x=>{
+          btn.disabled=false;el.textContent=x&&x.mensagem||'Erro ao salvar.';
+          if(x&&x.sucesso){['eventoCalTitulo','eventoCalDescricao','eventoCalFotos'].forEach(id=>document.getElementById(id).value='');
+            document.getElementById('eventoCalPublicarSite').checked=false;
+            const [y,m]=r.data.split('-');if(y&&m)mesCalendario=new Date(Number(y),Number(m)-1,1);
+            carregarCalendarioPlantao();carregarPaginaPublica();}
+        }).withFailureHandler(e=>{btn.disabled=false;el.textContent='Erro ao salvar evento.';console.error(e);})
+        .novSalvarEventoCalendario(usuarioAtual.email,usuarioAtual.tokenFreq,r,fotos);
+      }catch(e){btn.disabled=false;el.textContent=e.message||'Erro ao ler imagens.';}
     }
+
     function mostrarMuralAvisos(){if(telaNova('muralAvisos'))carregarMuralAvisos();}
     function carregarMuralAvisos(){
       const el=document.getElementById('listaAvisosMural');el.textContent='Carregando comunicados...';
@@ -1327,7 +1384,7 @@
       const ehBolsista = perfil && perfil.toString().trim().toLowerCase() === 'bolsista';
       ['btnJardimAdmin','btnDadosPlantao','btnParticipantes'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=ehBolsista?'block':'none';});
       const inabilitado = !ehBolsista && usuarioAtual.habilitado === false;
-      const permitidosInabilitado = ['btnSupervisoes','btnMaterialEstudo','btnCertificados','btnCentralNotificacoes','btnCalendarioPlantao','btnMuralAvisos'];
+      const permitidosInabilitado = ['btnSupervisoes','btnMaterialEstudo','btnCentralNotificacoes','btnCalendarioPlantao','btnMuralAvisos'];
       const todosBotoes = ['btnSolicitarCliente','btnRetornarCliente','btnMarcarPresencial','btnSupervisoes','btnMeusPlantoes','btnCertificados','btnEnviarFotos','btnMaterialEstudo','btnSolicitarPsicologo','btnCentralNotificacoes','btnCalendarioPlantao','btnMuralAvisos'];
       todosBotoes.forEach(id=>{
         const el=document.getElementById(id);
@@ -1335,7 +1392,7 @@
       });
 
       // Conta inativa: só "Meus Plantões" fica disponível, mesmo sobrepondo
-      // as regras acima (exceto o Jardim do Administrador do bolsista).
+      // as regras acima (exceto o Jardim dos Bolsistas do bolsista).
       const inativo = !ehBolsista && usuarioAtual.ativo === false;
       if (inativo) {
         todosBotoes.forEach(id => {
@@ -1427,7 +1484,7 @@
             mensagem.className = 'erro';
             console.error(erro);
           })
-          .obterOpcoesFiltroPsicologos(usuarioAtual.email);
+          .obterOpcoesFiltroPsicologos(usuarioAtual.email,usuarioAtual.tokenFreq);
       }
 
       window.scrollTo(0, 0);
@@ -1466,7 +1523,7 @@
           mensagem.className = 'erro';
           console.error(erro);
         })
-        .solicitarPsicologos(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil, quantidade, filtros);
+        .solicitarPsicologos(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil, quantidade, filtros,usuarioAtual.tokenFreq);
     }
 
     let clienteSelecionado = null;
@@ -1487,7 +1544,7 @@
       const el=document.getElementById('dadosPlantaoConteudo');el.textContent='Carregando...';
       google.script.run.withSuccessHandler(r=>renderizarDadosPlantao_(r,el))
         .withFailureHandler(()=>el.textContent='Erro ao carregar dados gerais.')
-        .obterDadosPlantao(usuarioAtual.email,'todos');
+        .obterDadosPlantao(usuarioAtual.email,'todos',usuarioAtual.tokenFreq);
       window.scrollTo(0,0);
     }
     function mostrarDadosPlantaoPerfil(perfil){
@@ -1499,7 +1556,7 @@
       const el=document.getElementById('dadosPlantaoPerfilConteudo');el.textContent='Carregando...';
       google.script.run.withSuccessHandler(r=>renderizarDadosPlantao_(r,el))
         .withFailureHandler(()=>el.textContent='Erro ao carregar dados do perfil.')
-        .obterDadosPlantao(usuarioAtual.email,perfil);
+        .obterDadosPlantao(usuarioAtual.email,perfil,usuarioAtual.tokenFreq);
       window.scrollTo(0,0);
     }
     let participantesSomenteAtivos=false;
@@ -1573,7 +1630,7 @@
     }
 
     function esconderTelasExtras() {
-      ['inicio', 'login', 'painel', 'meusPlantoes', 'centralNotificacoes','calendarioPlantao','muralAvisos','administrarMural', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'dadosPlantaoPerfil', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin','cadastroOnline','agendaPresencial','agendaAdmin','certificadosUsuario','certificadosAdmin','menuParticipantes','moderacaoExperiencias'].forEach(function(id) {
+      ['inicio', 'login', 'painel', 'meusPlantoes', 'centralNotificacoes','calendarioPlantao','muralAvisos','administrarMural', 'jardimAdmin', 'registrarFrequencia', 'registrarFalta', 'retornarCliente', 'presencial', 'dadosPlantao', 'dadosPlantaoPerfil', 'participantes', 'enviarFotos', 'solicitarPsicologo', 'verificarPraticantes', 'painelJustificativas', 'novaJanelaAdmin', 'frequenciasAdmin', 'minhasSupervisoes', 'conferirPresenca', 'conferirPresencasAdmin', 'ausenciasAdmin', 'relatorioPresencaAdmin','cadastroOnline','agendaPresencial','agendaAdmin','certificadosUsuario','certificadosAdmin','menuParticipantes','moderacaoExperiencias','enviarEmail'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.style.setProperty('display', 'none', 'important');
       });
@@ -1723,6 +1780,7 @@
         nome: document.getElementById('presNome').value.trim(),
         curso: document.getElementById('presCurso').value.trim(),
         idade: document.getElementById('presIdade').value.trim(),
+        email: document.getElementById('presEmail').value.trim(),
         cidade: document.getElementById('presCidade').value.trim(),
         genero: document.getElementById('presGenero').value.trim(),
         etnico: document.getElementById('presEtnico').value.trim(),
@@ -1745,7 +1803,7 @@
             mensagem.textContent = resposta.mensagem;
             mensagem.className = resposta.sucesso ? 'sucesso' : 'erro';
             if (resposta.sucesso) {
-              ['presNome','presCurso','presIdade','presCidade','presGenero','presEtnico','presOrientacao','presComoSoube','presOutras','localPresencial'].forEach(function(id) {
+              ['presNome','presCurso','presIdade','presEmail','presCidade','presGenero','presEtnico','presOrientacao','presComoSoube','presOutras','localPresencial'].forEach(function(id) {
                 document.getElementById(id).value = '';
               });
               document.getElementById('arquivoPresencial').value = '';
@@ -1764,7 +1822,8 @@
             usuarioAtual.perfil,
             informacoes,
             local,
-            { nome: arquivo.name, mimeType: arquivo.type, base64: e.target.result }
+            { nome: arquivo.name, mimeType: arquivo.type, base64: e.target.result },
+            usuarioAtual.tokenFreq
           );
       };
       reader.readAsDataURL(arquivo);
@@ -1813,11 +1872,15 @@
             mensagem.className = 'erro';
             console.error(erro);
           })
-          .enviarFotosPlantonista(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil, listaArquivos);
+          .enviarFotosPlantonista(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil, listaArquivos, usuarioAtual.tokenFreq);
       });
     }
 
     function sair() {
+      if(usuarioAtual && usuarioAtual.tokenFreq){
+        google.script.run.withFailureHandler(e=>console.warn('Não foi possível invalidar a sessão remota.',e))
+          .pgEncerrarSessao(usuarioAtual.email,usuarioAtual.tokenFreq);
+      }
       if (!executandoDentroDoAppsScript) { tokenSessaoApi=''; sessionStorage.removeItem('plantaoApiToken'); }
       usuarioAtual = null;
       document.getElementById('painel').style.display = 'none';
@@ -1900,7 +1963,7 @@
           mensagem.className = 'erro';
           console.error(erro);
         })
-        .gerarRelatorioPraticantes(usuarioAtual.perfil, filtro, mesInicio, mesFim);
+        .gerarRelatorioPraticantes(usuarioAtual.perfil, filtro, mesInicio, mesFim,usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     // ----------------------------------------
@@ -1912,6 +1975,7 @@
       esconderTelasExtras();
       document.getElementById('jardimAdmin').style.setProperty('display', 'flex', 'important');
       carregarStatusManutencao();
+      carregarStatusManutencaoPagina();
       window.scrollTo(0, 0);
     }
 
@@ -2009,7 +2073,7 @@
           lista.textContent = 'Erro ao carregar as justificativas.';
           console.error(erro);
         })
-        .listarJustificativasPendentes(usuarioAtual.email);
+        .listarJustificativasPendentes(usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     function analisarJustificativaAdmin(id, decisao, botao, card) {
@@ -2043,7 +2107,7 @@
           mensagem.className = 'erro';
           console.error(erro);
         })
-        .decidirJustificativaFalta(usuarioAtual.email, id, decisao);
+        .decidirJustificativaFalta(usuarioAtual.email, id, decisao,usuarioAtual.tokenFreq);
     }
 
     // ----------------------------------------
@@ -2054,16 +2118,16 @@
       const botao = document.getElementById('btnManutencao');
       google.script.run
         .withSuccessHandler(function(resposta) {
-          if (!resposta.sucesso) { botao.textContent = '🔧 Manutenção: erro ao carregar'; return; }
+          if (!resposta.sucesso) { botao.textContent = '🔧 Manutenção da Floresta: erro ao carregar'; return; }
           atualizarBotaoManutencao(resposta.ligada);
         })
-        .withFailureHandler(function() { botao.textContent = '🔧 Manutenção: erro ao carregar'; })
-        .obterStatusManutencao();
+        .withFailureHandler(function() { botao.textContent = '🔧 Manutenção da Floresta: erro ao carregar'; })
+        .obterStatusManutencao(usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     function atualizarBotaoManutencao(ligada) {
       const botao = document.getElementById('btnManutencao');
-      botao.textContent = ligada ? '🔧 Manutenção: LIGADA (clique para desligar)' : '🔧 Manutenção: desligada (clique para ligar)';
+      botao.textContent = ligada ? '🔧 Manutenção da Floresta: LIGADA (clique para desligar)' : '🔧 Manutenção da Floresta: desligada (clique para ligar)';
       botao.style.background = ligada ? '#c0392b' : '';
     }
 
@@ -2087,7 +2151,7 @@
           botao.disabled = false;
           alert('Erro ao alterar o status de manutenção.');
         })
-        .definirManutencao(usuarioAtual.perfil, novoValor);
+        .definirManutencao(usuarioAtual.perfil, novoValor,usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     // ----------------------------------------
@@ -2481,7 +2545,7 @@
           lista.textContent = 'Erro ao carregar o histórico de presença.';
           console.error(erro);
         })
-        .obterHistoricoSupervisoes(usuarioAtual.email);
+        .obterHistoricoSupervisoes(usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     // ----------------------------------------
@@ -2539,7 +2603,7 @@
           lista.textContent = 'Erro ao carregar as janelas.';
           console.error(erro);
         })
-        .listarJanelasAbertas(usuarioAtual.email);
+        .listarJanelasAbertas(usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     let tipoJanelaSelecionada = null;
@@ -2618,7 +2682,8 @@
           usuarioAtual.perfil,
           janelaSelecionadaId,
           exigeCampos ? (narrou === 'sim') : null,
-          exigeCampos ? palavra : ''
+          exigeCampos ? palavra : '',
+          usuarioAtual.tokenFreq
         );
     }
 
@@ -2679,7 +2744,7 @@
           lista.textContent = 'Erro ao carregar os dias.';
           console.error(erro);
         })
-        .listarTodasJanelas();
+        .listarTodasJanelas(usuarioAtual.email,usuarioAtual.tokenFreq);
     }
 
     function selecionarJanelaFalta(id, data, inicio, fim, tipo) {
@@ -2739,34 +2804,12 @@
           usuarioAtual.nome,
           usuarioAtual.perfil,
           janelaFaltaId,
-          motivo
+          motivo,
+          usuarioAtual.tokenFreq
         );
     }
 
     // ----------------------------------------
-    function carregarResumoPlantao() {
-      const resumoTexto = document.getElementById('resumoTexto');
-      resumoTexto.textContent = 'Carregando...';
-
-      google.script.run
-        .withSuccessHandler(function(resposta) {
-          if (resposta.sucesso) {
-            resumoTexto.innerHTML =
-              resposta.pendentes + ' pendente(s)<br>' +
-              resposta.atendidos + ' atendido(s)<br>' +
-              resposta.desistentes + ' desistente(s)<br>' +
-              resposta.transferidos + ' transferido(s)';
-          } else {
-            resumoTexto.textContent = resposta.mensagem;
-          }
-        })
-        .withFailureHandler(function(erro) {
-          resumoTexto.textContent = 'Erro ao carregar o resumo.';
-          console.error(erro);
-        })
-        .obterResumoPlantao(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil);
-    }
-
     function solicitarDadosClientes() {
       if (!usuarioAtual) return;
 
@@ -2792,7 +2835,7 @@
           mensagem.className = 'erro';
           console.error(erro);
         })
-        .solicitarDadosClientes(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil);
+        .solicitarDadosClientes(usuarioAtual.email, usuarioAtual.nome, usuarioAtual.perfil,usuarioAtual.tokenFreq);
     }
 
     // ----------------------------------------
@@ -2841,6 +2884,106 @@
         })
         .verificarLogin(email, senha);
     }
+
+    // ----------------------------------------
+    // Módulo de envio coletivo e manutenção da página principal
+    // ----------------------------------------
+    let pgCategoriaEmail='';
+    function mostrarEnviarEmail(){
+      if(!ehBolsistaLogado_())return;
+      esconderTelasExtras();document.getElementById('enviarEmail').style.setProperty('display','flex','important');
+      document.getElementById('emailMensagemStatus').textContent='';
+      if(!pgCategoriaEmail)selecionarCategoriaEmail('participantes');
+      window.scrollTo(0,0);
+    }
+    function selecionarCategoriaEmail(grupo){
+      if(!ehBolsistaLogado_()||!['participantes','psicologos','clientes'].includes(grupo))return;
+      pgCategoriaEmail=grupo;
+      const titulos={participantes:'Participantes',psicologos:'Psicólogos',clientes:'Clientes'};
+      document.getElementById('emailCategoriaTitulo').textContent='Destinatários: '+titulos[grupo];
+      const opcoes=grupo==='participantes'?[['todos','Todos os participantes'],['treinando','Treinandos'],['plantonista','Plantonistas'],['bolsista','Bolsistas']]:
+        grupo==='clientes'?[['todos','Todos os clientes'],['atendido','Atendidos'],['desistente','Desistentes']]:[['todos','Todos os psicólogos']];
+      const sel=document.getElementById('emailFiltro');sel.innerHTML='';
+      opcoes.forEach(([valor,rotulo])=>sel.add(new Option(rotulo,valor)));
+      document.getElementById('formEmailEmMassa').style.display='flex';
+      document.getElementById('emailAtivosLinha').style.display=grupo==='participantes'?'block':'none';
+      document.getElementById('emailConsentimentoLinha').style.display=grupo==='clientes'?'block':'none';
+      document.getElementById('emailMensagemStatus').textContent='';
+      atualizarPreviaEmail();
+    }
+    function atualizarPreviaEmail(){
+      if(!ehBolsistaLogado_()||!pgCategoriaEmail)return;
+      const filtro=document.getElementById('emailFiltro').value;
+      const ativos=document.getElementById('emailSomenteAtivos').checked;
+      const el=document.getElementById('emailPrevia');el.textContent='Calculando destinatários...';
+      google.script.run.withSuccessHandler(r=>{
+        el.textContent=r&&r.sucesso?`${r.quantidade} destinatário(s) com e-mail válido. Cota restante: ${r.quota} destinatário(s). Remetente: ${r.remetente}.`:
+          (r&&r.mensagem)||'Não foi possível calcular a quantidade.';
+      }).withFailureHandler(e=>{el.textContent='Erro ao consultar destinatários.';console.error(e);})
+      .pgPreviaEmail(usuarioAtual.email,usuarioAtual.tokenFreq,pgCategoriaEmail,filtro,ativos);
+    }
+    function confirmarEnviarEmail(){
+      if(!ehBolsistaLogado_()||!pgCategoriaEmail)return;
+      const assunto=document.getElementById('emailAssunto').value.trim();
+      const corpo=document.getElementById('emailCorpo').value.trim();
+      const filtro=document.getElementById('emailFiltro').value;
+      const ativos=document.getElementById('emailSomenteAtivos').checked;
+      const baseLegal=document.getElementById('emailConsentimento').checked;
+      const aviso=document.getElementById('emailMensagemStatus');
+      if(!assunto||!corpo){aviso.textContent='Informe assunto e mensagem.';return;}
+      if(pgCategoriaEmail==='clientes'&&!baseLegal){aviso.textContent='Confirme a finalidade e as autorizações de contato dos clientes.';return;}
+      if(!confirm('Registrar campanha para '+document.getElementById('emailFiltro').selectedOptions[0].text+'? Os e-mails serão enviados individualmente pela conta oficial, conforme a fila e os limites diários.'))return;
+      const btn=document.getElementById('btnCampanhaEmail');btn.disabled=true;aviso.textContent='Registrando campanha...';
+      google.script.run.withSuccessHandler(r=>{
+        btn.disabled=false;aviso.textContent=(r&&r.mensagem)||'Não foi possível registrar campanha.';
+        if(r&&r.sucesso){document.getElementById('emailCorpo').value='';document.getElementById('emailAssunto').value='';atualizarPreviaEmail();}
+      }).withFailureHandler(e=>{btn.disabled=false;aviso.textContent='Falha ao registrar envio.';console.error(e);})
+      .pgEnviarCampanha(usuarioAtual.email,usuarioAtual.tokenFreq,pgCategoriaEmail,filtro,ativos,assunto,corpo,baseLegal);
+    }
+    let pgManutencaoLigada=false;
+    function carregarStatusManutencaoPagina(){
+      const btn=document.getElementById('btnManutencaoPagina');
+      google.script.run.withSuccessHandler(r=>{
+        if(!r||!r.sucesso){btn.textContent='🔧 Manutenção Página Principal: erro';return;}
+        pgManutencaoLigada=!!r.manutencaoPaginaPrincipal;
+        btn.textContent=pgManutencaoLigada?'🔧 Manutenção Página Principal: LIGADA':'🔧 Manutenção Página Principal: desligada';
+        btn.style.background=pgManutencaoLigada?'#c0392b':'';
+      }).withFailureHandler(()=>{btn.textContent='🔧 Manutenção Página Principal: erro';}).pgEstadoPublico();
+    }
+    function alternarManutencaoPagina(){
+      if(!ehBolsistaLogado_())return;
+      const btn=document.getElementById('btnManutencaoPagina');btn.disabled=true;
+      google.script.run.withSuccessHandler(r=>{
+        btn.disabled=false;if(!r||!r.sucesso){alert(r&&r.mensagem||'Não foi possível alterar a manutenção.');return;}
+        carregarStatusManutencaoPagina();carregarPaginaPublica();
+      }).withFailureHandler(e=>{btn.disabled=false;alert('Falha na manutenção da página principal.');console.error(e);})
+      .pgManutencaoPagina(usuarioAtual.email,usuarioAtual.tokenFreq,!pgManutencaoLigada);
+    }
+    function carregarPaginaPublica(){
+      const el=document.getElementById('listaProximosEventos');
+      google.script.run.withSuccessHandler(r=>{
+        if(!r||!r.sucesso){document.getElementById('avisoManutencaoPaginaPrincipal').style.display='block';if(el)el.textContent='Não foi possível consultar a plataforma agora.';return;}
+        document.getElementById('conteudoPaginaPublica').style.display=r.manutencaoPaginaPrincipal?'none':'block';
+        document.getElementById('avisoManutencaoPaginaPrincipal').style.display=r.manutencaoPaginaPrincipal?'block':'none';
+        document.getElementById('inicio').classList.toggle('pagina-em-manutencao',!!r.manutencaoPaginaPrincipal);
+        if(!el||r.manutencaoPaginaPrincipal)return;
+        el.innerHTML='';const eventos=r.eventos||[];
+        if(!eventos.length){el.textContent='Nenhum evento próximo divulgado no momento.';return;}
+        eventos.forEach(e=>{
+          const item=document.createElement('article');item.className='integrado-item';
+          item.innerHTML='<h3>'+escapeHtml(e.titulo)+'</h3><small>'+escapeHtml(e.data.split('-').reverse().join('/'))+
+            (e.hora?' · '+escapeHtml(e.hora):'')+' · '+escapeHtml(e.tipo)+'</small>'+ (e.descricao?'<p>'+escapeHtml(e.descricao)+'</p>':'');
+          if(Array.isArray(e.fotos)&&e.fotos.length){const galeria=document.createElement('div');galeria.className='agenda-fotos';
+            e.fotos.forEach(url=>{const img=document.createElement('img');img.src=url;img.loading='lazy';img.alt='Imagem de divulgação do evento';
+              img.tabIndex=0;img.onclick=()=>abrirFotoAmpliada(url);galeria.appendChild(img);});item.appendChild(galeria);}
+          el.appendChild(item);
+        });
+      }).withFailureHandler(e=>{document.getElementById('avisoManutencaoPaginaPrincipal').style.display='block';if(el)el.textContent='Falha ao consultar a plataforma.';console.error(e);})
+      .pgEstadoPublico();
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',carregarPaginaPublica);
+    else carregarPaginaPublica();
+
   </script>
 
 
@@ -2962,7 +3105,7 @@
       const file=document.getElementById('onlineRelatorio').files[0],msg=document.getElementById('mensagemOnline');
       if(!file){msg.textContent='Anexe o relatório de atendimento.';return;}
       if(file.size>10*1024*1024){msg.textContent='O relatório deve ter no máximo 10 MB.';return;}
-      const dados={};['nome','curso','idade','cidade','estado','pais','relacao','genero','etnico','orientacao','comoSoube','outras']
+      const dados={};['nome','curso','idade','email','cidade','estado','pais','relacao','genero','etnico','orientacao','comoSoube','outras']
         .forEach(k=>{const id='online'+k[0].toUpperCase()+k.slice(1);dados[k]=document.getElementById(id).value.trim();});
       const btn=document.getElementById('btnSalvarOnline');btn.disabled=true;msg.textContent='Enviando...';
       try {
@@ -3138,14 +3281,14 @@
     // CERTIFICADOS — participante e administração
     // ----------------------------------------
     function mostrarCertificadosUsuario() {
-      if(!usuarioAtual)return;
+      if(!usuarioAtual || (!ehBolsistaLogado_() && (usuarioAtual.habilitado===false || usuarioAtual.ativo===false)))return;
       esconderTelasExtras();
       document.getElementById('certificadosUsuario').style.setProperty('display','flex','important');
       const msg=document.getElementById('mensagemCertificadosUsuario');
       msg.textContent='';msg.className='';window.scrollTo(0,0);
     }
     function solicitarCertificadoUsuario() {
-      if(!usuarioAtual)return;
+      if(!usuarioAtual || (!ehBolsistaLogado_() && (usuarioAtual.habilitado===false || usuarioAtual.ativo===false)))return;
       const msg=document.getElementById('mensagemCertificadosUsuario');
       const btn=document.getElementById('btnSolicitarCertificado');
       btn.disabled=true;btn.textContent='Consultando certificados...';
@@ -3331,7 +3474,8 @@ else carregarExperienciasPublicas();
     'certificadosUsuario',
     'certificadosAdmin',
     'menuParticipantes',
-    'moderacaoExperiencias'
+    'moderacaoExperiencias',
+    'enviarEmail'
   ];
 
   const marcador = 'plantao-historico-v1';
@@ -3353,7 +3497,8 @@ else carregarExperienciasPublicas();
     'agendaAdmin',
     'certificadosAdmin',
     'menuParticipantes',
-    'moderacaoExperiencias'
+    'moderacaoExperiencias',
+    'enviarEmail'
   ]);
 
   // Telas permitidas para usuários inabilitados
@@ -3363,7 +3508,6 @@ else carregarExperienciasPublicas();
     'registrarFrequencia',
     'registrarFalta',
     'conferirPresenca',
-    'certificadosUsuario',
     'centralNotificacoes',
     'calendarioPlantao',
     'muralAvisos'
