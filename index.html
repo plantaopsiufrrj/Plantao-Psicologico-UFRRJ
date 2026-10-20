@@ -2,8 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="plantao-build" content="2026-10-19-integrado-comunicacoes-v2">
+  <meta name="plantao-build" content="2026-10-20-home-carregamento-rapido-v1">
   <title>Plantão Psicológico</title>
+  <script>
+    // Estado de manutenção lembrado neste navegador. Não guarda dados pessoais.
+    // A verificação com o servidor continua ocorrendo a cada abertura do site.
+    try {
+      if (localStorage.getItem('plantao:manutencaoPaginaPrincipal:v1') === 'ON') {
+        document.documentElement.classList.add('plantao-manutencao-lembrada');
+      }
+    } catch (_) { /* armazenamento local pode estar bloqueado */ }
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background: #f5f7f6; color: #2c3e35; }
@@ -42,6 +51,11 @@
     }
     .btn:hover { background: #345f47; }
     #inicio.pagina-em-manutencao header nav a:not(:last-child) { display:none; }
+    /* Caso a manutenção esteja ativada no último estado conhecido,
+       mostre o aviso imediatamente em vez do conteúdo público. */
+    html.plantao-manutencao-lembrada #conteudoPaginaPublica { display:none !important; }
+    html.plantao-manutencao-lembrada #avisoManutencaoPaginaPrincipal { display:block !important; }
+    html.plantao-manutencao-lembrada #inicio header nav a:not(:last-child) { display:none; }
 
     section { padding: 40px 20px; max-width: 800px; margin: 0 auto; }
     section h2 { margin-bottom: 15px; }
@@ -338,7 +352,7 @@
       <p style="margin:16px 0;line-height:1.7;">A plataforma do Plantão Psicológico da UFRRJ encontra-se em manutenção no momento. Agradecemos a compreensão.</p>
       <button class="btn" onclick="mostrarLogin()">Floresta dos Plantonistas →</button>
     </div>
-    <div id="conteudoPaginaPublica" style="display:none;">
+    <div id="conteudoPaginaPublica" style="display:block;">
     <div class="hero">
       <h1>Plantão Psicológico da UFRRJ</h1>
       <p>Um espaço de escuta e acolhimento</p>
@@ -2959,13 +2973,27 @@
       }).withFailureHandler(e=>{btn.disabled=false;alert('Falha na manutenção da página principal.');console.error(e);})
       .pgManutencaoPagina(usuarioAtual.email,usuarioAtual.tokenFreq,!pgManutencaoLigada);
     }
+    function pgAplicarManutencaoPublica_(ligada){
+      const manutencao=!!ligada;
+      document.getElementById('conteudoPaginaPublica').style.display=manutencao?'none':'block';
+      document.getElementById('avisoManutencaoPaginaPrincipal').style.display=manutencao?'block':'none';
+      document.getElementById('inicio').classList.toggle('pagina-em-manutencao',manutencao);
+      // Retira a classe do cache só depois de aplicar o estado confirmado.
+      document.documentElement.classList.remove('plantao-manutencao-lembrada');
+      try { localStorage.setItem('plantao:manutencaoPaginaPrincipal:v1',manutencao?'ON':'OFF'); }
+      catch (_) { /* modo privado / restrição de armazenamento */ }
+    }
     function carregarPaginaPublica(){
+      // O corpo principal já aparece pelo HTML estático. Esta chamada atualiza
+      // somente a manutenção e os eventos, sem bloquear o primeiro desenho.
       const el=document.getElementById('listaProximosEventos');
       google.script.run.withSuccessHandler(r=>{
-        if(!r||!r.sucesso){document.getElementById('avisoManutencaoPaginaPrincipal').style.display='block';if(el)el.textContent='Não foi possível consultar a plataforma agora.';return;}
-        document.getElementById('conteudoPaginaPublica').style.display=r.manutencaoPaginaPrincipal?'none':'block';
-        document.getElementById('avisoManutencaoPaginaPrincipal').style.display=r.manutencaoPaginaPrincipal?'block':'none';
-        document.getElementById('inicio').classList.toggle('pagina-em-manutencao',!!r.manutencaoPaginaPrincipal);
+        if(!r||!r.sucesso){
+          // Falha de rede não significa manutenção ativada.
+          if(el)el.textContent='Não foi possível atualizar os eventos agora.';
+          return;
+        }
+        pgAplicarManutencaoPublica_(r.manutencaoPaginaPrincipal);
         if(!el||r.manutencaoPaginaPrincipal)return;
         el.innerHTML='';const eventos=r.eventos||[];
         if(!eventos.length){el.textContent='Nenhum evento próximo divulgado no momento.';return;}
@@ -2978,7 +3006,7 @@
               img.tabIndex=0;img.onclick=()=>abrirFotoAmpliada(url);galeria.appendChild(img);});item.appendChild(galeria);}
           el.appendChild(item);
         });
-      }).withFailureHandler(e=>{document.getElementById('avisoManutencaoPaginaPrincipal').style.display='block';if(el)el.textContent='Falha ao consultar a plataforma.';console.error(e);})
+      }).withFailureHandler(e=>{if(el)el.textContent='Não foi possível atualizar os eventos agora.';console.error(e);})
       .pgEstadoPublico();
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',carregarPaginaPublica);
@@ -3357,7 +3385,7 @@
   </script>
 
   <script>
-    window.PLANTAO_BUILD = '2026-10-15-painel-integrado-v1';
+    window.PLANTAO_BUILD = '2026-10-20-home-carregamento-rapido-v1';
     console.info('[Plantão] build:', window.PLANTAO_BUILD);
   </script>
 
