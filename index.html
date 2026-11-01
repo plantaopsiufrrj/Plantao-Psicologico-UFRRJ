@@ -6,6 +6,7 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="2026-10-23-index2-mobile-tablet-v3" name="plantao-build"/>
 <title>Plantão Psicológico</title>
+<script>if (location.hash === '#acesso-floresta') document.documentElement.classList.add('plantao-link-login');</script>
 <script>
     // Estado de manutenção lembrado neste navegador. Não guarda dados pessoais.
     // A verificação com o servidor continua ocorrendo a cada abertura do site.
@@ -967,7 +968,7 @@
   text-align:left;color:#1c3d31;
 }
 .floresta-pagina-interna > .login-box::before {
-  content:"❧"; position:absolute;right:25px;top:16px;font:54px/1 Georgia,serif;
+  content:none; position:absolute;right:25px;top:16px;font:54px/1 Georgia,serif;
   color:#7da57592;pointer-events:none;
 }
 .floresta-pagina-interna > .login-box > h2 {
@@ -1036,7 +1037,7 @@
 }
 .floresta-pagina-interna .login-box .menu-painel button:nth-child(3n + 2) {background:linear-gradient(130deg,#edf6e7,#d7e9cf)!important;}
 .floresta-pagina-interna .login-box .menu-painel button:nth-child(3n + 3) {background:linear-gradient(130deg,#f2f0fa,#e1d8ed)!important;}
-.floresta-pagina-interna .login-box .menu-painel button::after{content:"❧";font:36px Georgia,serif;color:#7094799e;position:absolute;right:11px;bottom:4px;pointer-events:none;}
+.floresta-pagina-interna .login-box .menu-painel button::after{content:none;font:36px Georgia,serif;color:#7094799e;position:absolute;right:11px;bottom:4px;pointer-events:none;}
 .floresta-pagina-interna .login-box .menu-painel button:hover{filter:brightness(.97);border-color:#afc9b0!important;}
 .floresta-pagina-interna .login-box .integrada-lista {grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;}
 .floresta-pagina-interna .login-box .integrado-item,
@@ -2372,6 +2373,27 @@
   background-size:cover !important;
 }
 </style>
+<style id="ajustesTutoriaisGaleriaCertificados20261101">
+/* Botões externos simples, separados dos cartões ilustrados. */
+.atalhos-tutoriais{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px auto 20px;max-width:760px;position:relative;z-index:2}
+.atalho-tutorial{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:11px;border:1px solid #a4bda8;background:rgba(255,253,247,.96);color:#234b3b!important;font:600 14px/1.35 Arial,sans-serif;text-align:center;text-decoration:none!important;box-shadow:0 2px 9px #183a2420;max-width:100%}
+.atalho-tutorial:hover,.atalho-tutorial:focus-visible{background:#e8f3e9;outline-color:#2c6b4c}
+#painel>.atalhos-tutoriais{max-width:900px}
+#jardimAdmin .atalhos-tutoriais{margin:15px auto 18px}
+#enviarFotos .atalhos-tutoriais{margin:20px auto 10px}
+#certificadosAdmin .atalhos-tutoriais-duplos{justify-content:flex-start}
+/* Contraste maior diante do papel de parede ilustrado. */
+#inicio #experienciasPlantao{background-color:rgba(255,253,247,.9)!important}
+#inicio #experienciasPlantao>h2,#inicio #experienciasPlantao>p{background:rgba(255,253,247,.93)!important;border-radius:10px;padding:9px 13px;position:relative;z-index:2;color:#173b2e!important;text-shadow:0 1px 2px #fff,0 0 10px #fff!important}
+#inicio #experienciasPlantao>h2{font-weight:800!important}
+#inicio #experienciasPlantao>p{font-weight:600!important;line-height:1.65!important}
+#inicio #experienciasPlantao .experiencias-form{background:rgba(255,254,250,.98)!important;color:#213a2e!important}
+/* Retorno: reutiliza exatamente o desenho do ícone do cartão Retornar Cliente. */
+#retornarCliente .retorno-botao-voltar .retorno-icone-cartao{width:33px;height:33px;display:block;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%2246%22%20height%3D%2246%22%20rx%3D%2214%22%20fill%3D%22%23ca534d%22%2F%3E%3Cg%20transform%3D%22translate%2812%2012%29%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2011a8%208%200%200%201%2014-5l2%202M20%2013a8%208%200%200%201-14%205l-2-2%22%2F%3E%3Cpath%20d%3D%22M20%203v5h-5M4%2021v-5h5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");background-position:center;background-size:contain;background-repeat:no-repeat;flex:none}
+#retornarCliente .retorno-botao-voltar{font-size:0!important}
+/* Retira o enfeite genérico de folhas sem afetar a folha dourada da Floresta. */
+.floresta-pagina-interna>.login-box::before,.floresta-pagina-interna .login-box .menu-painel button::after{content:none!important;display:none!important}
+</style>
 </head>
 <body>
 <div aria-label="Foto ampliada do plantão" aria-modal="true" class="foto-ampliada" id="fotoAmpliada" onclick="fecharFotoAmpliada()" role="dialog">
@@ -2535,6 +2557,7 @@
 </div>
 </div>
 <div aria-live="polite" id="mensagemPainel" role="status"></div>
+<div class="atalhos-tutoriais"><a class="atalho-tutorial" href="https://drive.google.com/drive/folders/1StNO5Q-dm_1kYbj0GlzlekWfjFCOQamb?hl=pt-br" target="_blank" rel="noopener noreferrer">📖 Tutorial de uso da Floresta ↗</a></div>
 <div aria-label="Funcionalidades do Plantão" class="menu-painel floresta-cards" id="florestaAtalhos">
 <button id="btnSolicitarCliente" onclick="solicitarCliente()" type="button">
 <span class="floresta-titulo-botao">Solicitar Cliente</span>
@@ -2658,6 +2681,10 @@
 <div class="login-box jardim-box" style="max-width:760px;width:100%;"><div class="jardim-cabecalho"><h2>Verificar solicitações de certificado</h2><p style="margin:12px 0 18px;color:#4a5c52;line-height:1.5;">Solicitações pendentes, inclusive aquelas em que já houve envio automático. Marcar como "Entregue" ou "Cancelar solicitação" arquiva o pedido sem apagar certificados.</p></div><div class="jardim-cartao">
 
 
+<div class="atalhos-tutoriais atalhos-tutoriais-duplos">
+<a class="atalho-tutorial" href="https://drive.google.com/drive/folders/1qfGfBWyYdX5CLpqVic_PX7cm8hIjI21w?hl=pt-br" target="_blank" rel="noopener noreferrer">📁 Pasta Certificados Automáticos ↗</a>
+<a class="atalho-tutorial" href="https://drive.google.com/drive/folders/1Yzda2iUC24JW75RtBeKk4RhShtWLgi-s?hl=pt-br" target="_blank" rel="noopener noreferrer">📁 Pasta Certificados Emitidos ↗</a>
+</div>
 <div aria-live="polite" id="mensagemCertificadosAdmin" role="status" style="margin-bottom:12px;"></div>
 <button class="btn" onclick="carregarCertificadosAdmin()" style="margin-bottom:18px;">↻ Atualizar solicitações</button>
 <div id="listaCertificadosAdmin" style="text-align:left;">Carregando...</div>
@@ -2998,6 +3025,7 @@
 <label for="arquivosFotos">Fotos (JPG ou PNG, pode escolher mais de uma)</label>
 <input accept="image/jpeg,image/png" id="arquivosFotos" multiple="" style="margin-bottom:16px;" type="file"/>
 <button class="btn" id="btnEnviarFotosConfirmar" onclick="enviarFotosConfirmar()">Enviar</button>
+<div class="atalhos-tutoriais"><a class="atalho-tutorial" href="https://drive.google.com/drive/folders/1VxShj1g5bI57j74ZA2ISaCJ5RQg8eBfD?hl=pt-br" target="_blank" rel="noopener noreferrer">🖼️ Abrir galeria de fotos ↗</a></div>
 <span class="voltar" onclick="voltarAoPainel()">← Voltar ao painel</span>
 
 <footer class="instituicoes-internas" aria-label="Instituições parceiras do Plantão Psicológico">
@@ -3010,7 +3038,7 @@
 </div>
 <!-- JARDIM DO ADMINISTRADOR (painel do bolsista) -->
 <div class="jardim-pagina" id="jardimAdmin"><div class="jardim-retorno-topo"><button type="button" class="floresta-interna-identidade floresta-retorno-direto" onclick="voltarAoPainel()" aria-label="Voltar à Floresta dos Plantonistas"><svg aria-hidden="true" width="23" height="23" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="m19 8-12 20h8L7 40h24l-8-12h8L19 8Z" fill="#5C936B" stroke="#326D4D" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 40v12" stroke="#79563A" stroke-width="4" stroke-linecap="round"/><path d="m43 4-12 19h8l-8 12h24l-8-12h8L43 4Z" fill="#92BE7A" stroke="#326D4D" stroke-width="2.5" stroke-linejoin="round"/><path d="M43 35v18" stroke="#79563A" stroke-width="4" stroke-linecap="round"/><path d="M8 54h48" stroke="#4F855C" stroke-width="3" stroke-linecap="round"/></svg><span>Floresta dos Plantonistas</span></button></div>
-<div class="login-box jardim-box" style="max-width:560px;"><div class="jardim-cabecalho"><h2>Jardim dos Bolsistas</h2><p class="jardim-subtitulo">Um espaço para organizar o projeto, compartilhar iniciativas e cultivar o cuidado em equipe.</p></div><div class="jardim-cartao">
+<div class="login-box jardim-box" style="max-width:560px;"><div class="jardim-cabecalho"><h2>Jardim dos Bolsistas</h2><p class="jardim-subtitulo">Um espaço para organizar o projeto, compartilhar iniciativas e cultivar o cuidado em equipe.</p></div><div class="atalhos-tutoriais"><a class="atalho-tutorial" href="https://drive.google.com/drive/folders/1lWG-hnYWmcADOM4xNCCBK5MvnEk3EYP_?hl=pt-br" target="_blank" rel="noopener noreferrer">📖 Tutorial de uso do Jardim ↗</a></div><div class="jardim-cartao">
 
 <button aria-description="Resumo dos atendimentos e indicadores do projeto." class="btn jardim-atalho" data-icone="📊" data-legenda="Resumo dos atendimentos e indicadores do projeto." onclick="mostrarDadosPlantao()" style="margin-bottom:10px;">Dados do Plantão</button>
 <button aria-description="Consulte participantes e informações da equipe." class="btn jardim-atalho" data-icone="👥" data-legenda="Consulte participantes e informações da equipe." onclick="mostrarMenuParticipantes()" style="margin-bottom:10px;">Verificar Participantes</button>
@@ -3295,7 +3323,7 @@
 <span class="retorno-topo-legenda">🌿 Floresta dos Plantonistas</span>
 </header>
 <div class="retorno-apresentacao">
-<button aria-label="Voltar ao painel" class="retorno-botao-voltar" onclick="voltarAoPainel()" type="button">‹</button>
+<button aria-label="Voltar ao painel" class="retorno-botao-voltar" onclick="voltarAoPainel()" type="button"><span class="retorno-icone-cartao" aria-hidden="true"></span></button>
 <div class="retorno-cabecalho-texto">
 <span class="retorno-chamada">🌱 Um espaço de cuidado e escuta</span>
 <h2>Retornar Cliente</h2>
@@ -4026,6 +4054,41 @@
       document.getElementById('listaParticipantes').textContent='Carregando...';
       carregarParticipantes_(renderParticipantes);window.scrollTo(0,0);
     }
+    // Acesso delegado: só substitui a sessão após autorização no backend.
+    let sessaoAdminOriginal = null;
+    function iniciarAcessoAdministrador(p, botao) {
+      if (!usuarioAtual || usuarioAtual.perfil.toLowerCase() !== 'bolsista' || sessaoAdminOriginal) return;
+      const senha = prompt('Informe sua senha mestra para acessar a conta de ' + p.nome + ':');
+      if (senha === null || !senha) return;
+      botao.disabled = true;
+      google.script.run.withSuccessHandler(r => {
+        botao.disabled = false;
+        if (!r || !r.sucesso) { alert((r && r.mensagem) || 'Acesso não autorizado.'); return; }
+        sessaoAdminOriginal = {...usuarioAtual, listaAtivos: participantesSomenteAtivos};
+        mostrarPainel(r.nome, r.email, r.perfil, r.habilitado, r.ativo);
+        usuarioAtual.tokenFreq = r.tokenFreq;
+        usuarioAtual.acessoAdministrativo = true;
+        const aviso = document.getElementById('barraAcessoAdminDelegado');
+        aviso.style.display = 'flex';
+        document.getElementById('textoAcessoAdminDelegado').textContent = 'Acesso administrativo: ' + r.nome;
+        window.scrollTo(0,0);
+      }).withFailureHandler(e => {
+        botao.disabled = false;
+        alert('Falha na autorização administrativa: ' + (e.message || e));
+      }).segAcessarContaComoAdmin(usuarioAtual.email, usuarioAtual.tokenFreq, p.email, senha);
+    }
+    function encerrarAcessoAdministrador() {
+      if (!sessaoAdminOriginal) return;
+      const sessaoDelegada = usuarioAtual;
+      const original = sessaoAdminOriginal;
+      sessaoAdminOriginal = null;
+      document.getElementById('barraAcessoAdminDelegado').style.display = 'none';
+      google.script.run.withFailureHandler(e=>console.warn('Falha ao encerrar sessão delegada',e))
+        .pgEncerrarSessao(sessaoDelegada.email,sessaoDelegada.tokenFreq);
+      mostrarPainel(original.nome,original.email,original.perfil,original.habilitado,original.ativo);
+      usuarioAtual.tokenFreq=original.tokenFreq;
+      mostrarParticipantes(original.listaAtivos);
+    }
     function renderParticipantes(){
       const el=document.getElementById('listaParticipantes');el.innerHTML='';
       const itens=participantesCache.filter(p=>!participantesSomenteAtivos||p.ativo);
@@ -4044,7 +4107,7 @@
         <label>Ativo<select data-k="ativo"><option value="true" ${p.ativo?'selected':''}>Ativo</option><option value="false" ${!p.ativo?'selected':''}>Inativo</option></select></label></div>
         <p>Supervisões: ${p.presencas} | Casos narrados: ${p.narracoes}</p>
         <p>Atendidos: ${p.atendidos} | Desistentes: ${p.desistentes} | Transferidos: ${p.transferidos} | Pendentes: ${p.pendentes}</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn" data-save>Salvar alterações</button><button class="btn" data-mail>Enviar e-mail</button></div>`;
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn" data-save>Salvar alterações</button><button class="btn" data-mail>Enviar e-mail</button><button class="btn" data-admin>Acessar como administrador</button></div>`;
         card.querySelector('[data-save]').onclick=()=>{
           const d={};card.querySelectorAll('[data-k]').forEach(n=>d[n.dataset.k]=n.value);
           d.ativo=d.ativo==='true';d.habilitado=d.habilitado==='true';
@@ -4053,6 +4116,10 @@
           .atualizarParticipante(usuarioAtual.email,p.linha,d,usuarioAtual.tokenFreq);
         };
         card.querySelector('[data-mail]').onclick=()=>window.open('https://mail.google.com/mail/?view=cm&to='+encodeURIComponent(card.querySelector('[data-k="email"]').value),'_blank');
+        const btnAdmin=card.querySelector('[data-admin]');
+        btnAdmin.disabled=!p.ativo;
+        btnAdmin.title=p.ativo?'Acessar esta conta usando autorização administrativa':'Somente contas ativas';
+        btnAdmin.onclick=()=>iniciarAcessoAdministrador(p,btnAdmin);
         el.appendChild(card);
       });
     }
@@ -4324,6 +4391,12 @@
     }
 
     function sair() {
+      if (sessaoAdminOriginal && sessaoAdminOriginal.tokenFreq) {
+        google.script.run.withFailureHandler(e=>console.warn(e))
+          .pgEncerrarSessao(sessaoAdminOriginal.email,sessaoAdminOriginal.tokenFreq);
+      }
+      sessaoAdminOriginal=null;
+      document.getElementById('barraAcessoAdminDelegado').style.display='none';
       if(usuarioAtual && usuarioAtual.tokenFreq){
         google.script.run.withFailureHandler(e=>console.warn('Não foi possível invalidar a sessão remota.',e))
           .pgEncerrarSessao(usuarioAtual.email,usuarioAtual.tokenFreq);
@@ -6496,6 +6569,66 @@ paint();
    if(matchMedia('(max-width:700px)').matches)florestaAlternarMenuMobile(false);
  }));
  document.addEventListener('keydown',e=>{if(e.key==='Escape' && painel.querySelector('.floresta-mobile-aberta'))florestaAlternarMenuMobile(false)});
+})();
+</script>
+<div id="barraAcessoAdminDelegado" style="display:none;position:fixed;bottom:12px;left:12px;right:12px;z-index:100000;align-items:center;justify-content:space-between;gap:12px;background:#173b2e;color:white;padding:12px 16px;border-radius:12px;box-shadow:0 4px 18px #0006;flex-wrap:wrap;" role="status">
+  <strong id="textoAcessoAdminDelegado">Acesso administrativo</strong>
+  <button type="button" onclick="encerrarAcessoAdministrador()" style="padding:10px 14px;border:0;border-radius:8px;cursor:pointer;">Voltar à minha conta</button>
+</div>
+<!-- Links diretos públicos: avaliação e login da Floresta. -->
+<style>
+  html.plantao-link-login #inicio { display: none !important; }
+  html.plantao-link-login #login { display: flex !important; }
+</style>
+<script>
+(function () {
+  'use strict';
+  const destinoLogin = 'acesso-floresta';
+  function tirarModoLinkLogin() {
+    document.documentElement.classList.remove('plantao-link-login');
+  }
+  function abrirDestinoDireto() {
+    const destino = decodeURIComponent(location.hash.slice(1));
+    if (destino === destinoLogin) {
+      // Não concede acesso: mostra apenas o formulário normal de autenticação.
+      const inicio = document.getElementById('inicio');
+      const login = document.getElementById('login');
+      if (!inicio || !login) return;
+      document.documentElement.classList.add('plantao-link-login');
+      inicio.style.display = 'none';
+      login.style.display = 'flex';
+      window.scrollTo(0, 0);
+      const aviso = document.getElementById('mensagemLogin');
+      if (aviso) { aviso.textContent = ''; aviso.className = ''; }
+    } else {
+      tirarModoLinkLogin();
+      if (destino === 'experienciasPlantao') {
+        const secao = document.getElementById('experienciasPlantao');
+        if (secao) requestAnimationFrame(() => secao.scrollIntoView({block:'start',behavior:'auto'}));
+      }
+    }
+  }
+  // Após login bem-sucedido, libere o painel sem interferir na autenticação.
+  function observarNavegacao() {
+    const painel = document.getElementById('painel');
+    if (painel) {
+      new MutationObserver(() => {
+        if (getComputedStyle(painel).display !== 'none') tirarModoLinkLogin();
+      }).observe(painel, {attributes:true,attributeFilter:['style']});
+    }
+    // O botão Voltar do login deve poder retornar à página inicial.
+    const login = document.getElementById('login');
+    if (login) login.addEventListener('click', function(evento) {
+      if (evento.target.closest('.voltar')) {
+        tirarModoLinkLogin();
+        if (location.hash === '#' + destinoLogin) history.replaceState(history.state, '', location.pathname + location.search);
+      }
+    }, true);
+  }
+  function iniciarLinks() { observarNavegacao(); abrirDestinoDireto(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarLinks, {once:true});
+  else iniciarLinks();
+  window.addEventListener('hashchange', abrirDestinoDireto);
 })();
 </script>
 </body>
