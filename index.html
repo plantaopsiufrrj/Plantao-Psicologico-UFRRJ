@@ -858,7 +858,7 @@
 #retornarCliente #listaClientesPendentes > div > button.btn:hover{filter:brightness(.91);}
 #retornarCliente .retorno-formulario {padding:22px clamp(14px,2.3vw,24px);border:1.5px solid #f3bab0;
   border-radius:18px;background:linear-gradient(125deg,#fff4efef,#fffaf5ee);box-shadow:0 6px 18px #82463e1c;}
-#retornarCliente:has(#formRetorno[style*="display: block"]) .retorno-listagem {display:none;}
+#retornarCliente:has(#formRetorno[style*="display: block"]) .retorno-titulo-lista {display:none;}
 #retornarCliente .retorno-formulario-cabecalho {display:flex;align-items:center;gap:15px;margin-bottom:19px;}
 #retornarCliente .retorno-formulario-icone {display:grid;place-items:center;width:54px;height:54px;
   border-radius:13px;background:#e4ada4;font-size:29px;flex:none;}
@@ -2496,7 +2496,7 @@
 <div id="login">
 <div class="login-box">
 <h2>Floresta dos Plantonistas</h2>
-<p style="margin:4px 0 18px;color:#4a5c52;line-height:1.6;">Um espaço reservado para quem cultiva a escuta no Plantão. Acesse suas atividades, supervisões, materiais e registros do projeto.</p>
+<p style="margin:4px 0 18px;color:#4a5c52;line-height:1.6;">Um espaço reservado para os plantonistas que cultivam a escuta no Plantão. Obtenha acesso a um painel de gestão de suas atividades no Projeto.</p>
 <div id="mensagemLogin"></div>
 <label for="email">E-mail</label>
 <input id="email" placeholder="seuemail@exemplo.com" type="email"/>
@@ -2552,8 +2552,8 @@
 </div>
 <div class="floresta-apresentacao">
 <div aria-hidden="true" class="floresta-folha-titulo">❧</div>
-<div><p class="floresta-bemvindo">Boas-vindas à</p><h1>Floresta dos Plantonistas</h1>
-<p>Um espaço para você gerir suas atividades no Plantão.<br/>Que suas experiências por aqui também sejam sementes de um mundo mais acolhedor.</p>
+<div><p class="floresta-bemvindo">Boas vindas à</p><h1>Floresta dos Plantonistas</h1>
+<p>Um espaço para você gerir e cuidar de seus plantões.<br/>Que suas experiências como plantonista sejam sementes de um mundo mais acolhedor.</p>
 </div>
 </div>
 <div aria-live="polite" id="mensagemPainel" role="status"></div>
@@ -2565,19 +2565,19 @@
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnRetornarCliente" onclick="acaoPainel('retornarCliente')" type="button">
 <span class="floresta-titulo-botao">Retornar Cliente</span>
-<span class="floresta-desc-botao">Atualize a situação dos seus atendimentos.</span>
+<span class="floresta-desc-botao">Atualize a situação de seus clientes pendentes ou cadastre um novo plantão realizado.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnSolicitarPsicologo" onclick="mostrarSolicitarPsicologo()" type="button">
 <span class="floresta-titulo-botao">Solicitar Psicólogo</span>
-<span class="floresta-desc-botao">Solicite psicólogos para serem encaminhados a seus clientes.</span>
+<span class="floresta-desc-botao">Solicite psicólogos para encaminhar a seus clientes.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnSupervisoes" onclick="mostrarMinhasSupervisoes()" type="button">
 <span class="floresta-titulo-botao">Minhas Supervisões/<wbr/>Treinamentos</span>
-<span class="floresta-desc-botao">Registre e acompanhe sua frequência em encontros de supervisão ou treinamento.</span>
+<span class="floresta-desc-botao">Acompanhe e registre sua frequência nos encontros de supervisão ou treinamento.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnMeusPlantoes" onclick="mostrarMeusPlantoes()" type="button">
 <span class="floresta-titulo-botao">Meus Plantões</span>
-<span class="floresta-desc-botao">Obtenha um resumo da sua trajetória no Plantão ou solicite os dados dos seus clientes.</span>
+<span class="floresta-desc-botao">Veja sua trajetória no Plantão ou solicite os dados dos seus clientes.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnMarcarPresencial" onclick="mostrarAgendaPresencial()" type="button">
 <span class="floresta-titulo-botao">Marcar um plantão presencial</span>
@@ -2585,19 +2585,19 @@
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnCertificados" onclick="mostrarCertificadosUsuario()" type="button">
 <span class="floresta-titulo-botao">Certificados</span>
-<span class="floresta-desc-botao">Acesse seus certificados.</span>
+<span class="floresta-desc-botao">Solicite seus certificados.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnEnviarFotos" onclick="mostrarEnviarFotos()" type="button">
 <span class="floresta-titulo-botao">Enviar fotos</span>
-<span class="floresta-desc-botao">Compartilhe fotos de seus plantões.</span>
+<span class="floresta-desc-botao">Compartilhe fotos dos seus plantões.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnMaterialEstudo" onclick="window.open('https://drive.google.com/drive/folders/1oy7PtTabmdywdDXDdtm-3NrTkGyN05CS','_blank','noopener,noreferrer')" type="button">
 <span class="floresta-titulo-botao">Materiais de Estudos</span>
-<span class="floresta-desc-botao">Textos, vídeos, guias e materiais da formação teórica como plantonista.</span>
+<span class="floresta-desc-botao">Textos, vídeos, guias e materiais gerais para o tornar-se plantonista.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <button id="btnJardimAdmin" onclick="mostrarJardimAdmin()" style="display:none;" type="button">
 <span class="floresta-titulo-botao">Jardim dos Bolsistas</span>
-<span class="floresta-desc-botao">Um espaço para a gestão do Projeto pela equipe técnica-acadêmica.</span>
+<span class="floresta-desc-botao">Um espaço para a gestão do projeto pela equipe técnico-acadêmica.</span>
 <span aria-hidden="true" class="floresta-flora"></span></button>
 <div aria-hidden="true" class="floresta-vaga-jardim"></div>
 <button class="floresta-card-mobile" id="florestaAtalhoCalendarioMobile" onclick="mostrarCalendarioPlantao()" type="button">
@@ -2620,7 +2620,7 @@
 <div class="floresta-bloco floresta-bloco-percurso" id="florestaPercurso">
 <div class="floresta-bloco-cabecalho"><h2><span aria-hidden="true">🌳🪑</span> Meu percurso no Plantão</h2>
 <button onclick="florestaAbrirAtalho('btnMeusPlantoes')" type="button">Ver detalhes ↗</button></div>
-<p class="floresta-bloco-intro">Cada escuta é uma semente que germina essa caminhada.</p>
+<p class="floresta-bloco-intro">Cada escuta é uma semente que germina sua formação.</p>
 <div aria-label="Etapas do percurso no Plantão" class="floresta-passos">
 <div><span class="floresta-medalha" aria-label="Sementes"><svg aria-hidden="true" viewBox="0 0 64 64" width="44" height="44" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="25" cy="39" rx="9" ry="14" transform="rotate(-27 25 39)" fill="#997348" stroke="#5B4930" stroke-width="2"/><path d="M22 29c7 5 9 12 8 18" stroke="#E5C49A" stroke-width="2" stroke-linecap="round"/><ellipse cx="42" cy="37" rx="7" ry="11" transform="rotate(28 42 37)" fill="#B58B59" stroke="#5B4930" stroke-width="2"/><path d="M44 30c-6 6-6 10-7 14" stroke="#E8C99F" stroke-width="1.6" stroke-linecap="round"/></svg></span><strong>Treinamento</strong><small>Aprender e crescer</small></div>
 <div><span class="floresta-medalha" aria-label="Planta germinando"><svg aria-hidden="true" viewBox="0 0 64 64" width="44" height="44" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M31 53V26" stroke="#467D50" stroke-width="4" stroke-linecap="round"/><path d="M31 35C13 35 12 22 12 17c17-1 23 5 19 18Z" fill="#83B85E" stroke="#3D7949" stroke-width="2"/><path d="M32 30c1-15 9-19 21-20 1 14-5 21-21 20Z" fill="#AFD77B" stroke="#467D50" stroke-width="2"/><path d="M16 53h33" stroke="#92734E" stroke-width="4" stroke-linecap="round"/></svg></span><strong>Plantões</strong><small>Escutar e acolher</small></div>
@@ -3307,7 +3307,7 @@
 </footer>
 </div>
 </div>
-<div class="jardim-pagina" id="participantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="jardim-retorno-topo"><button type="button" class="floresta-interna-identidade floresta-retorno-direto" onclick="voltarAoPainel()" aria-label="Voltar à Floresta dos Plantonistas"><svg aria-hidden="true" width="23" height="23" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="m19 8-12 20h8L7 40h24l-8-12h8L19 8Z" fill="#5C936B" stroke="#326D4D" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 40v12" stroke="#79563A" stroke-width="4" stroke-linecap="round"/><path d="m43 4-12 19h8l-8 12h24l-8-12h8L43 4Z" fill="#92BE7A" stroke="#326D4D" stroke-width="2.5" stroke-linejoin="round"/><path d="M43 35v18" stroke="#79563A" stroke-width="4" stroke-linecap="round"/><path d="M8 54h48" stroke="#4F855C" stroke-width="3" stroke-linecap="round"/></svg><span>Floresta dos Plantonistas</span></button></div><div class="login-box jardim-box" style="max-width:1000px;width:100%;"><div class="jardim-cabecalho"><h2 id="tituloListaParticipantes">Verificar Todos os Participantes</h2><p>Dados dos participantes registrados, incluindo matrícula e período de ingresso.</p></div><div class="jardim-cartao"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;"><button class="btn" onclick="baixarParticipantes('Plantonista',true)">Baixar plantonistas ativos</button><button class="btn" onclick="baixarParticipantes('Treinando',true)">Baixar treinandos ativos</button><button class="btn" onclick="baixarParticipantes('Todos',true)">Baixar todos ativos</button></div><div id="listaParticipantes">Carregando...</div><span class="voltar" onclick="mostrarMenuParticipantes()">← Voltar a Verificar Participantes</span></div>
+<div class="jardim-pagina" id="participantes" style="display:none;min-height:90vh;justify-content:center;padding:20px;"><div class="jardim-retorno-topo"><button type="button" class="floresta-interna-identidade floresta-retorno-direto" onclick="voltarAoPainel()" aria-label="Voltar à Floresta dos Plantonistas"><svg aria-hidden="true" width="23" height="23" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="m19 8-12 20h8L7 40h24l-8-12h8L19 8Z" fill="#5C936B" stroke="#326D4D" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 40v12" stroke="#79563A" stroke-width="4" stroke-linecap="round"/><path d="m43 4-12 19h8l-8 12h24l-8-12h8L43 4Z" fill="#92BE7A" stroke="#326D4D" stroke-width="2.5" stroke-linejoin="round"/><path d="M43 35v18" stroke="#79563A" stroke-width="4" stroke-linecap="round"/><path d="M8 54h48" stroke="#4F855C" stroke-width="3" stroke-linecap="round"/></svg><span>Floresta dos Plantonistas</span></button></div><div class="login-box jardim-box" style="max-width:1000px;width:100%;"><div class="jardim-cabecalho"><h2 id="tituloListaParticipantes">Verificar Todos os Participantes</h2><p>Dados dos participantes (plantonistas, treiandregistrados, incluindo matrícula e período de ingresso.</p></div><div class="jardim-cartao"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;"><button class="btn" onclick="baixarParticipantes('Plantonista',true)">Baixar plantonistas ativos</button><button class="btn" onclick="baixarParticipantes('Treinando',true)">Baixar treinandos ativos</button><button class="btn" onclick="baixarParticipantes('Todos',true)">Baixar todos ativos</button></div><div id="listaParticipantes">Carregando...</div><span class="voltar" onclick="mostrarMenuParticipantes()">← Voltar a Verificar Participantes</span></div>
 <footer class="instituicoes-internas" aria-label="Instituições parceiras do Plantão Psicológico">
   <span class="instituicao-logo logo-plantao" role="img" aria-label="Plantão Psicológico UFRRJ"></span>
   <span class="instituicao-logo logo-ufrrj" role="img" aria-label="Universidade Federal Rural do Rio de Janeiro"></span>
@@ -3326,13 +3326,13 @@
 <button aria-label="Voltar ao painel" class="retorno-botao-voltar" onclick="voltarAoPainel()" type="button"><span class="retorno-icone-cartao" aria-hidden="true"></span></button>
 <div class="retorno-cabecalho-texto">
 <h2>Retornar Cliente</h2>
-<p style="margin:10px 0 16px;">Espere carregar seus cliente pendentes e selecione um para atualizar sua situação de atendimento. Fez um plantão presencial ou atendeu on-line um cliente não solicitado na Plataforma? Use os demais botões para cadastrar seu plantão..</p>
+<p style="margin:10px 0 16px;">Após carregar seus clientes pendentes, selecione um para atualizar a situação do atendimento. Use os demais botões para cadastrar outros plantões.</p>
 </div>
 </div>
 <div class="retorno-quadro">
 <div class="retorno-listagem">
 <div class="retorno-titulo-lista">
-<div><span class="retorno-marcador">🍃</span> <h3>Meus clientes pendentes</h3></div>
+<div><span class="retorno-marcador">🌷</span> <h3>Meus clientes pendentes</h3></div>
 <div aria-live="polite" id="listaClientesPendentes">Carregando...</div>
 </div>
 <div class="retorno-formulario" id="formRetorno" style="display:none;margin-top:18px;">
